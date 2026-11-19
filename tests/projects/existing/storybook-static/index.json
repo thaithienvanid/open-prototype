@@ -1,0 +1,8 @@
+{
+  "v": 5,
+  "entries": {
+    "message-row--default": { "type": "story", "id": "message-row--default", "title": "Message row", "name": "Default" },
+    "button--primary": { "type": "story", "id": "button--primary", "title": "Button", "name": "Primary" },
+    "button--secondary": { "type": "story", "id": "button--secondary", "title": "Button", "name": "Secondary" }
+  }
+}

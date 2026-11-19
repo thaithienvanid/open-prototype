@@ -1,0 +1,44 @@
+#!/bin/sh
+# open-prototype from the plugin's own copy of the source, so that in Claude Code the skill's `open-prototype check` and
+# the rest work with the plugin alone. Claude Code puts a plugin's bin/ folder on its Bash tool's PATH. Bun comes from
+# the PATH; the source comes from the folder beside this script, never from the project or the current folder.
+unset CDPATH
+# A person may link this script into a folder on their PATH, so the source is found beside the script the links lead
+# to, one link at a time: `readlink -f` is not on a stock macOS. A relative link is read from the folder that holds it.
+SELF=$0
+while [ -L "$SELF" ]; do
+  LINK=$(readlink -- "$SELF") || break
+  case $LINK in
+    /*) SELF=$LINK ;;
+    *) SELF=$(dirname -- "$SELF")/$LINK ;;
+  esac
+done
+ROOT=$(cd -P -- "$(dirname -- "$SELF")/.." 2>/dev/null && pwd -P) || { echo "open-prototype: the plugin's source is missing next to $SELF" >&2; exit 2; }
+if [ ! -f "$ROOT/src/cli.ts" ]; then echo "open-prototype: the plugin's source is missing at $ROOT/src/cli.ts" >&2; exit 2; fi
+# The oldest Bun the tool takes, from package.json's engines, the one place it is written, such as "bun": ">=1.4.4".
+FLOOR=$(sed -n 's/^ *"bun": *">= *\([0-9][0-9.]*\)".*/\1/p' "$ROOT/package.json" 2>/dev/null)
+if [ -z "$FLOOR" ]; then echo "open-prototype: the plugin's package.json names no Bun in its engines, at $ROOT/package.json" >&2; exit 2; fi
+if ! command -v bun >/dev/null 2>&1; then
+  echo "open-prototype: it needs Bun $FLOOR or newer, and none is on the PATH." >&2
+  echo "Ask the person first, then install it with one of these, and run the command again:" >&2
+  echo "  curl -fsSL https://bun.sh/install | bash        (macOS or Linux, Bun's own installer, from https://bun.sh)" >&2
+  echo "  brew install oven-sh/bun/bun                     (macOS or Linux with Homebrew)" >&2
+  echo "  powershell -c \"irm bun.sh/install.ps1 | iex\"     (Windows, Bun's own installer, from https://bun.sh)" >&2
+  echo "A new shell, or the PATH line the installer prints, makes bun found." >&2
+  exit 2
+fi
+# An older Bun stops here with the step to update, before it reads the source. The command line checks again, for
+# the ways in that run no script, with the same words.
+V=$(bun --version 2>/dev/null)
+IFS=. read -r MAJ MIN PAT <<EOV
+$V
+EOV
+IFS=. read -r NMAJ NMIN NPAT <<EOV
+$FLOOR
+EOV
+PAT=${PAT%%[!0-9]*}
+if [ "${MAJ:-0}" -lt "$NMAJ" ] || { [ "$MAJ" -eq "$NMAJ" ] && { [ "${MIN:-0}" -lt "${NMIN:-0}" ] || { [ "$MIN" -eq "${NMIN:-0}" ] && [ "${PAT:-0}" -lt "${NPAT:-0}" ]; }; }; }; then
+  echo "open-prototype: it needs Bun $FLOOR or newer, and this one is $V. Ask the person first, then update it with: bun upgrade" >&2
+  exit 2
+fi
+exec bun "$ROOT/src/cli.ts" "$@"

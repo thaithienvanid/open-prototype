@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="cascade" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cascade: prototype</title>
+<style>
+  @layer reset, components;
+  @layer reset { section, div { display: block !important; } }
+  @layer components { .card { display: flex !important; } }
+  section, [data-proto-state] { display: grid !important; }
+  .panel { display: block !important; }
+  body.cascade-body { margin: 0; font: 1rem/1.5 system-ui, sans-serif; }
+</style>
+</head>
+<body class="cascade-body" data-mood="calm">
+<h1 data-proto-slot="title"></h1>
+<section data-proto-screen="one" data-proto-title="One">
+  <div data-proto-state="ready" class="card" data-testid="one-ready"><p>One</p><button type="button" data-proto-toggle="more" data-testid="one-more">More</button><div class="panel" data-proto-panel="more" hidden><p>More words.</p></div><p hidden="until-found" data-testid="one-found">Found by search.</p><button type="button" data-proto-go="two" data-testid="one-two">Two</button></div>
+  <div data-proto-state="empty" class="card" style="display: flex" data-testid="one-empty"><p>Nothing</p></div>
+</section>
+<section data-proto-screen="two" data-proto-title="Two" hidden>
+  <div data-proto-state="ready" class="card" data-testid="two-ready"><p>Two</p></div>
+</section>
+</body>
+</html>

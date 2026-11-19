@@ -1,0 +1,16 @@
+name: Idea
+description: Something the tool could do, or do better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you need to do
+      description: The task you were doing, and where the tool stopped you.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: Optional. How the tool could help.

@@ -1,0 +1,533 @@
+/* The viewer's own chrome, not the product's. It reads its design system, viewer.css inlined above, for every
+   value and for its components: the top bar, tabs, buttons, segments, the field, badges, the notice callout, links,
+   the meter, the dialog, and the toast. The pv- classes lay out the viewer and name what its script finds. The
+   product's styles live in <template id="product">, so they reach only the frames. Colour appears only for a state:
+   violet for comments and their pins, ink for a state seen, and blue for where you are (focus, and the Board's current
+   cell) and for links. */
+/* The viewer's own measures: the top bar's height, and each side panel's widest and its width now, which the script reads. */
+/* The top bar is a bar's height above its border, so a control centred in it lands on a whole pixel. */
+:root { --pv-top-h: calc(var(--size-bar) + var(--border-width-thin)); --pv-nav-width: 18rem; --pv-inspector-width: 22rem; --pv-nav-column: min(var(--pv-nav-width), 24vw); --pv-inspector-column: min(var(--pv-inspector-width), 30vw); }
+html, body { height: 100%; }
+html { scrollbar-gutter: auto; }  /* the viewer's page never scrolls: its panels do */
+body { overflow: hidden; scrollbar-color: var(--input) transparent; }
+.pv-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+/* Review status, in shape as well as colour, so colour is never the only cue: a filled check, a dashed ring, the open ring. */
+svg.pv-st[data-st="seen"] { color: var(--foreground); }
+svg.pv-st[data-st="unseen"] { color: var(--muted-foreground); }
+.pv-seen-mark { stroke: var(--background); stroke-width: 1.8; }
+
+/* The app: a top bar, then the Screens panel, the artboard, and the comments. */
+.pv-app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); container: app / inline-size; }
+.pv-top { display: flex; align-items: center; gap: var(--spacing-4); min-height: var(--pv-top-h); padding: 0 var(--spacing-3); border-bottom: var(--border-width-thin) solid var(--border); background: var(--background); min-width: 0; }
+/* In ems, so text at 200% hides the labels on a laptop too; each keeps its name for a screen reader. */
+@container app (width < 60em) { .pv-tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+.pv-id { display: flex; align-items: baseline; gap: var(--spacing-2); min-width: 0; flex: 1 1 0; white-space: nowrap; overflow: hidden; }
+.pv-product { flex: none; max-width: 40%; font-size: var(--text-title); font-weight: var(--font-weight-semibold); overflow: hidden; text-overflow: ellipsis; }
+.pv-sub { margin: 0; color: var(--muted-foreground); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pv-sub a { color: inherit; }
+.pv-sub-short { display: none; }
+#build-where { overflow-wrap: anywhere; }
+.pv-end { display: flex; align-items: center; justify-content: flex-end; gap: var(--spacing-1_5); flex: 1 1 0; }
+
+/* Controls: hairline buttons, one primary button for the step that ends a round, segments that read as one control. */
+.seg > button:disabled { color: var(--input); cursor: not-allowed; }
+
+/* Full screen: only the screen, still clickable. A web frame fills the window at its real size; a phone fits its
+   height. The exit button stays, faint until a pointer or the keyboard reaches it. */
+.pv-app[data-present="true"] { grid-template-rows: minmax(0, 1fr); }
+.pv-app[data-present="true"] :is(.pv-top, .pv-nav, .pv-inspector, .pv-bar, .pv-banners, .pv-caption, .pv-caption-next, .pv-dock) { display: none !important; }
+.pv-app[data-present="true"] .pv-work { grid-template-columns: minmax(0, 1fr); }
+.pv-app[data-present="true"] .pv-center { grid-template-rows: minmax(0, 1fr); }
+.pv-app[data-present="true"] .pv-scroller { overflow: hidden; }
+.pv-app[data-present="true"] .pv-view { padding: var(--spacing-4); }
+.pv-app[data-present="true"] .pv-shell:is([data-pv-platform="web"], [data-pv-platform="desktop"]) { border: 0; border-radius: 0; }
+.pv-app[data-present="true"] :is(.pv-browser, .pv-titlebar, .pv-compare-side, .pv-pins) { display: none; }
+.pv-app[data-present="true"] .pv-shell:is([data-pv-platform="web"], [data-pv-platform="desktop"]) ~ * { display: none; }
+.pv-app[data-present="true"]:has(.pv-shell:is([data-pv-platform="web"], [data-pv-platform="desktop"])) .pv-view { padding: 0; }
+/* The exit sits at the bottom centre, over the artboard when it can, and shows only when the pointer moves or the
+   keyboard reaches it, so it never stays over the product's own navigation. Esc always leaves. */
+.pv-exit { position: fixed; z-index: var(--layer-exit); bottom: var(--spacing-4); left: 50%; transform: translateX(-50%); opacity: 0; pointer-events: none; transition: opacity var(--duration-base) var(--ease-standard); }
+.pv-exit.pv-awake, .pv-exit:hover, .pv-exit:focus-visible { opacity: 1; pointer-events: auto; }
+.pv-app:not([data-present="true"]) ~ .pv-exit { display: none; }  /* the button follows the app, so a sibling rule hides it */
+/* A phone's gesture bar sits at the bottom centre, so its exit moves to the top corner, clear of the device. */
+.pv-app:has(.pv-shell:is([data-pv-platform="ios"], [data-pv-platform="android"])) ~ .pv-exit { top: var(--spacing-3); right: var(--spacing-3); bottom: auto; left: auto; transform: none; }
+
+.pv-work { display: grid; grid-template-columns: var(--pv-nav-column) minmax(0, 1fr) var(--pv-inspector-column); min-height: 0; }
+.pv-pane { background: var(--background); min-height: 0; scrollbar-width: thin; }
+
+/* The Screens panel: the round, what is left to see, and every screen with its states. */
+.pv-nav { border-right: var(--border-width-thin) solid var(--border); overflow-y: auto; }
+.pv-round { padding: var(--spacing-4) var(--spacing-4); display: grid; gap: var(--spacing-2); border-bottom: var(--border-width-thin) solid var(--border); }
+.pv-round p { margin: 0; }
+.pv-round-top { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
+/* The Screens panel's heading reads as its quiet label. */
+.pv-of { color: var(--muted-foreground); font: inherit; }
+/* The round is a title with a plain text field: a wheel or an arrow key never changes it, only a number and Enter. */
+.pv-round-h { display: flex; align-items: center; gap: var(--spacing-1_5); font-size: var(--text-title); line-height: var(--text-title--line-height); font-weight: var(--font-weight-semibold); }
+.pv-round-h input { width: var(--size-round-field); font: var(--font-weight-semibold) var(--text-title)/1 var(--font-sans); font-variant-numeric: tabular-nums; }
+@supports (field-sizing: content) { .pv-round-h input { width: auto; min-width: var(--size-round-field-min); field-sizing: content; } }
+.pv-path { font-size: var(--text-meta); }
+.pv-app[data-keys="off"] kbd { display: none; }
+.pv-round .pv-seenline { margin-top: var(--spacing-1); }
+.pv-seenline b { font-weight: var(--font-weight-semibold); }
+/* Where each state was seen: one row for each platform group and theme the design styles, the one on screen in ink. */
+.pv-wheres { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-0_5); }
+.pv-wheres li { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--spacing-2); min-height: var(--size-row); color: var(--muted-foreground); }
+.pv-wheres .pv-name { flex-basis: 6em; }  /* at 200% text the count takes the next line, so a name never splits */
+.pv-wheres li[aria-current="true"] { color: var(--foreground); font-weight: var(--font-weight-semibold); }
+.pv-wheres li span:last-child { font-variant-numeric: tabular-nums; }
+.pv-open { display: flex; align-items: center; gap: var(--spacing-2); color: var(--muted-foreground); }
+.pv-open i { flex: none; width: var(--spacing-2); height: var(--spacing-2); border-radius: var(--radius-full); background: var(--comment); }
+.pv-open[data-none] i { display: none; }
+.pv-open i.pv-ring { background: none; box-shadow: inset 0 0 0 var(--border-width-thin) var(--comment); }
+.pv-round > .btn { margin-top: var(--spacing-1_5); justify-content: space-between; }
+.pv-find { margin: var(--spacing-3) var(--spacing-4) var(--spacing-1); }
+.pv-list, .pv-flowlist { list-style: none; margin: 0; padding: 0; }
+.pv-list { padding-bottom: var(--spacing-6); }
+.pv-flow-h { margin: var(--spacing-4) var(--spacing-4) 0; font-size: var(--text-meta); font-weight: var(--font-weight-semibold); color: var(--muted-foreground); }
+.pv-scr { padding: var(--spacing-2) var(--spacing-2) var(--spacing-1); }
+.pv-scr-h { font-size: var(--text-title); line-height: var(--text-title--line-height); }  /* an h3 alone, an h4 under its flow's h3: one look */
+.pv-scr-h button { width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: var(--spacing-2); padding: var(--spacing-0_5) var(--spacing-2); border: 0; border-radius: var(--radius-sm); background: none; font-weight: var(--font-weight-semibold); text-align: left; text-decoration: none; cursor: pointer; }
+/* The screen's name is underlined as a link; the count beside it is not, so it never reads as a second link. */
+.pv-scr-h button span:first-child { text-decoration: underline; }
+.pv-scr-h button:hover { background: var(--muted); }
+.pv-scr-h button span:last-child { color: var(--muted-foreground); font-weight: var(--font-weight-normal); font-variant-numeric: tabular-nums; }
+.pv-slist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-0_5); }
+/* A state row is the system's .option, on every screen; the open screen's shown state is its current one. */
+/* Rows of a list or a menu touch each other, so each draws its focus ring inside (see the inside ring). */
+:is(.pv-srow, .pv-scr-h button, .pv-pop > button, .pv-rows > button):focus-visible { outline-offset: var(--focus-inside-offset); box-shadow: inset 0 0 0 var(--focus-inside-gap) var(--background); }
+.pv-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pv-slist button[aria-current="true"] svg.pv-st { color: var(--primary-foreground); }
+.pv-slist button[aria-current="true"] kbd { background: transparent; color: var(--primary-foreground); border-color: var(--primary-foreground); }
+.pv-slist [data-show] .pv-count { box-shadow: 0 0 0 var(--border-width-thick) var(--foreground); }
+
+/* The artboard: a flat, neutral surround, so neither the product's light nor its dark theme is judged against a tint. */
+.pv-center { display: grid; grid-template-rows: auto auto minmax(0, 1fr); min-width: 0; min-height: 0; background: var(--backdrop); }
+/* A link that opened something else than it named, and the design's own problems: said above the artboard, in markup's colour,
+   because what shows is not what was asked. */
+.pv-banners { display: grid; }
+.pv-banner summary { cursor: pointer; font-weight: var(--font-weight-semibold); }
+.pv-banner ul { margin: var(--spacing-1_5) 0 var(--spacing-0_5); padding-left: var(--spacing-4); max-height: 30vh; overflow: auto; }
+.pv-banner code { overflow-wrap: anywhere; }
+.pv-bar { position: relative; z-index: var(--layer-bar); display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-2); padding: var(--spacing-1_5) var(--spacing-3); border-bottom: var(--border-width-thin) solid var(--border); background: var(--background); }
+/* The place starts at its whole width, so a bar without room for it moves its other controls to the next line before the
+   screen's name is cut; the name gives way only when the place alone is wider than the bar. */
+.pv-where { display: inline-flex; align-items: center; gap: var(--spacing-1); flex: 1 1 auto; font-weight: var(--font-weight-semibold); min-width: min-content; }
+.pv-where > span:not(.pv-crumb) { white-space: nowrap; }
+/* The state is the part that changes, so it never shrinks: a long screen name gives way first. A grid says it in the sizes the
+   bar's line breaking reads, because a flex row's smallest width counts the arrows at full size. The smallest width of the
+   prototype's place is then an arrow, 2ch of the screen name, the separator, the whole state, and an arrow. A bar too narrow
+   for it wraps its other controls to the next line, so a font wider than the design's cannot cut the state. */
+#where-prototype { display: inline-grid; grid-template-columns: minmax(var(--size-target), var(--size-control)) auto minmax(var(--size-target), var(--size-control)); justify-content: start; }
+#where-prototype .btn-icon { width: auto; }
+.pv-crumb { display: grid; grid-template-columns: minmax(2ch, auto) auto auto; white-space: nowrap; }
+.pv-crumb-screen { overflow: hidden; text-overflow: ellipsis; }
+.pv-sep { margin: 0 var(--spacing-1); color: var(--muted-foreground); font-weight: var(--font-weight-normal); }
+.pv-dot { margin: 0 var(--spacing-1); color: var(--muted-foreground); font-weight: var(--font-weight-normal); }
+.pv-dim { color: var(--muted-foreground); font-weight: var(--font-weight-normal); }
+#where-board > span:first-child, #where-board > .pv-dot { display: none; }
+#where-board > .pv-dim { white-space: normal; }  /* the coverage line wraps, so a wide font or 200% text never scrolls the page sideways */
+#where-board { flex-basis: 0; }  /* it takes the room the controls leave, so they keep one row in a wide font too */
+.pv-scroller { position: relative; overflow: auto; min-height: 0; background: var(--backdrop); scrollbar-width: thin; }
+.pv-scroller:focus:not(:focus-visible) { outline: none; }
+.pv-scroller:focus-visible { outline-offset: calc(-1 * (var(--focus-offset) + var(--border-width-thin))); box-shadow: none; }
+/* The frame list: one native select, with the frame's type as its icon. */
+.pv-pick[hidden], .pv-board-rows [hidden] { display: none; }
+.pv-pick:not([data-pv-platform="web"]) .pv-on-web, .pv-pick:not([data-pv-platform="phone"]) .pv-on-phone, .pv-pick:not([data-pv-platform="desktop"]) .pv-on-desktop { display: none; }
+/* The frame and the product theme are one control with two axes: what the screen is shown on, and in which theme. */
+/* Add a comment in the artboard bar, only where the comments are a closed drawer: 48rem to 80rem (768 to 1279 px at the default size), on the Prototype. */
+.pv-bar-comment { display: none; }
+@media (48rem <= width < 80rem) { .pv-app[data-tab="prototype"] .pv-bar-comment { display: inline-flex; } }
+/* Checks: the rarely changed toggles, behind one button that counts the ones on. */
+.pv-more { position: relative; display: flex; }
+.pv-more-btn { padding-inline-end: var(--spacing-2); }
+.pv-more-btn .pv-chevron { color: var(--muted-foreground); transition: transform var(--duration-fast) var(--ease-standard); }
+.pv-more-btn[aria-expanded="true"] .pv-chevron { transform: rotate(180deg); }
+.pv-pop { position: absolute; top: calc(100% + var(--spacing-2)); right: 0; z-index: var(--layer-bar); width: min(17rem, calc(100vw - var(--spacing-8))); padding: var(--spacing-1); display: grid; gap: var(--border-width-thin); background: var(--popover); color: var(--popover-foreground); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-lg); box-shadow: var(--shadow-raised); }
+.pv-pop > button { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--spacing-2); padding: var(--spacing-1_5) var(--spacing-2) var(--spacing-2) var(--spacing-2); border: 0; border-radius: var(--radius-sm); background: none; text-align: left; cursor: pointer; }
+.pv-pop > button:hover { background: var(--muted); }
+.pv-pop > .seg { margin: var(--spacing-0_5) var(--spacing-1) var(--spacing-1_5); justify-self: start; }
+.pv-pop > button > span:first-child { display: grid; gap: var(--spacing-0_5); font-weight: var(--font-weight-medium); }
+.pv-pop small { display: block; color: var(--muted-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-normal); }
+:is(.pv-pop button[aria-pressed="true"], .pv-keys-switch button[aria-checked="true"]) .switch-state { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+.pv-view { min-height: 100%; display: flex; flex-direction: column; justify-content: center; padding: var(--spacing-6) var(--spacing-6) var(--spacing-4); }
+.pv-device-slot { margin-inline: auto; flex: none; }
+.pv-device { width: max-content; transform-origin: top left; }
+.pv-device[data-move] { transition: transform var(--duration-base) var(--ease-standard); }
+.pv-next.pv-caption-next { display: none; width: 100%; max-width: 35rem; margin: var(--spacing-2) auto 0; text-align: center; }
+.pv-caption { margin: var(--spacing-3) auto 0; width: max-content; max-width: 100%; color: var(--foreground); display: flex; align-items: baseline; gap: var(--spacing-2); flex-wrap: wrap; justify-content: center; }
+.pv-caption b { font-weight: var(--font-weight-semibold); }
+.pv-caption > * + *::before { content: "\00B7"; margin-right: var(--spacing-2); }
+/* Fit and 100% sit in the caption, beside the size they change. */
+.pv-caption { align-items: center; }
+.pv-caption > .seg::before { content: none; }
+.pv-caption > .seg { background: var(--background); }
+
+
+/* Compare: a screenshot of the built UI beside the frame, or under it, at the frame's width. */
+.pv-device { display: flex; gap: var(--spacing-8); align-items: flex-start; }
+/* Compare's picture or its placeholder goes under the frame when that shows the frame larger (besideFit, placeholderFit). It sits below the
+   frame's caption and the line to type, which the script measures (--pv-under), so the caption stays by its frame. */
+.pv-device[data-stack] { flex-direction: column; }
+.pv-device[data-stack] > .pv-compare-side { margin-top: calc(var(--pv-under, 0px) / var(--pv-scale, 1)); }
+/* The panel sits in the scaled device, so its own text and controls divide by the scale and read at the viewer's size. */
+.pv-compare-side { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: calc(var(--spacing-3) / var(--pv-scale, 1)); align-content: start; }
+.pv-compare-side img { display: block; object-fit: contain; object-position: top left; border-radius: var(--radius-md); box-shadow: 0 0 0 calc(var(--border-width-thin) / var(--pv-scale, 1)) var(--input); background: var(--background); }
+/* The caption keeps to the picture's width: a button that does not fit beside the name takes the next line. */
+.pv-compare-side figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: calc(var(--spacing-3) / var(--pv-scale, 1)); color: var(--foreground); font-size: calc(var(--text-body) / var(--pv-scale, 1)); }
+.pv-compare-side .btn { max-width: 100%; white-space: normal; text-align: start; hyphens: auto; overflow-wrap: anywhere; min-height: var(--size-compare-button); padding: 0 0.8em; border-width: calc(var(--border-width-thin) / var(--pv-scale, 1)); border-radius: 0.45em; }
+.pv-compare-side :focus-visible { outline-width: calc(var(--focus-width) / var(--pv-scale, 1)); outline-offset: calc(var(--focus-offset) / var(--pv-scale, 1)); box-shadow: 0 0 0 calc(var(--focus-halo) / var(--pv-scale, 1)) var(--background); }
+.pv-compare-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pv-compare-missing { width: calc(18.75rem / var(--pv-scale, 1)); padding: calc(var(--spacing-4) / var(--pv-scale, 1)); border: calc(var(--border-width-thin) / var(--pv-scale, 1)) dashed var(--input); border-radius: calc(var(--radius-lg) / var(--pv-scale, 1)); background: var(--background); }
+.pv-compare-missing figcaption { display: grid; justify-items: start; }
+.pv-compare-missing .pv-compare-name { white-space: normal; line-height: var(--text-body--line-height); }
+.pv-compare-name code { font-size: inherit; color: var(--foreground); overflow-wrap: anywhere; }
+
+/* The board: a row for each screen, its name, then its own states in drawn order, each cell marked seen, not seen, or
+   with comments and named under its picture. A long row widens the board, which the artboard pans; the window never
+   scrolls sideways. The column of names divides by the zoom, so it keeps its width on screen as its text keeps its size. */
+.pv-board { position: relative; width: max-content; min-width: 100%; padding: var(--spacing-4) var(--spacing-6) var(--spacing-8) calc(18 * var(--spacing-1)); }
+.pv-board-rows { display: grid; grid-template-columns: calc(8.25rem / var(--pv-zoom, 1)) max-content; width: max-content; gap: var(--spacing-3); align-items: start; }
+.pv-rowh { min-width: 0; padding-top: var(--spacing-1_5); font-size: calc(var(--text-body) / var(--pv-zoom, 1)); overflow-wrap: break-word; }
+.pv-rowh b { display: block; font-weight: var(--font-weight-semibold); }
+.pv-rowh > span, .pv-rowh > small { display: block; color: var(--foreground); font-size: calc(var(--text-meta) / var(--pv-zoom, 1)); }
+/* The open screen's row is marked as the Screens panel marks the open state: the here icon, never an underline. */
+.pv-rowh b { display: flex; align-items: center; gap: var(--spacing-1); }
+.pv-rowh b svg { width: calc(var(--size-icon-small) / var(--pv-zoom, 1)); height: calc(var(--size-icon-small) / var(--pv-zoom, 1)); }
+.pv-rowh:not([aria-current="true"]) b svg { display: none; }
+.pv-rowh .pv-opens { margin-top: var(--spacing-0_5); color: var(--muted-foreground); }
+.pv-board[data-flows="off"] .pv-opens { display: none; }
+.pv-strip { display: flex; gap: var(--spacing-3); }
+.pv-thumb { position: relative; flex: none; display: flex; flex-direction: column; padding: var(--spacing-0_5); scroll-margin: var(--focus-ring-room); }
+.pv-thumb-frame { position: relative; overflow: hidden; background: Canvas; box-shadow: 0 0 0 var(--pv-thumb-edge-width) var(--pv-thumb-edge-color); }
+/* Forced colours drop a shadow, so there a thumbnail's edge is an outline, which its state rings replace. */
+@media (forced-colors: active) { .pv-thumb-frame { outline: var(--border-width-thin) solid ButtonBorder; } }
+.pv-thumb-frame:not([data-pv-platform="phone"]) { border-radius: var(--radius-sm); }
+.pv-thumb iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; pointer-events: none; background: Canvas; }
+/* A cell's name sits under its picture, its button covers the whole cell, and its ring is drawn on the picture. The name
+   keeps its size on screen down to the fit's floor (--pv-zoom-floor, set from FIT_FLOOR in views/board.ts), and a word
+   longer than the picture breaks rather than spill past it. */
+.pv-thumb-name { order: 2; display: block; padding: calc(var(--spacing-1_5) / max(var(--pv-zoom, 1), var(--pv-zoom-floor))) var(--spacing-0_5) 0; border: 0; background: none; color: var(--foreground); font-size: calc(var(--text-meta) / max(var(--pv-zoom, 1), var(--pv-zoom-floor))); font-weight: var(--font-weight-medium); text-align: left; overflow-wrap: break-word; cursor: pointer; }
+.pv-thumb-name::after { content: ""; position: absolute; inset: 0; z-index: var(--layer-raised); }
+.pv-thumb-name:focus-visible { outline: none; box-shadow: none; }
+/* The state rings are drawn from the thumbnail they mark. Each sits on the system's halo a focus offset outside the
+   thumbnail's own edge, so it follows its corners and never touches or repeats that edge. They take the ring's blue, the
+   one hue that keeps 3:1 against both a phone's dark bezel and a light board, and the halo keeps 3:1 against a window's
+   grey hairline. The cell under the pointer has a thin ring. The current cell has a thick ring with the system's soft
+   glow, as a focused field has, so it is the first thing the eye finds. Keyboard focus adds a second, thin ring outside,
+   on the current cell too. Widths and gaps divide by the zoom, so they keep their size on screen. A browser draws an
+   outline's width in whole pixels, rounding down. A width divided by the zoom and multiplied back can land a rounding error
+   short of its whole pixels and lose one. At about one zoom in eight, the current ring and the focus ring would then draw
+   as thin as the hover ring. So each ring's outline asks for a sixty-fourth of a pixel more, which the rounding drops. A
+   shadow's spread is never rounded, so it takes the width as it is. On a dark board the halo would merge with a phone's
+   bezel and read as a thicker bezel, so there the gap is the board's own colour. */
+.pv-thumb-frame { --pv-thumb-halo-color: var(--background); --pv-thumb-ring-gap: calc(var(--focus-offset) / var(--pv-zoom, 1)); --pv-thumb-thin-width: calc(var(--border-width-thin) / var(--pv-zoom, 1)); --pv-thumb-thick-width: calc(var(--border-width-thick) / var(--pv-zoom, 1)); --pv-thumb-snap-margin: calc(var(--border-width-thin) / 64 / var(--pv-zoom, 1)); --pv-thumb-ring-offset: calc(var(--pv-thumb-edge-width) + var(--pv-thumb-ring-gap)); --pv-thumb-outer-offset: calc(var(--pv-thumb-ring-offset) + max(var(--focus-width), var(--border-width-thick)) / var(--pv-zoom, 1) + var(--pv-thumb-ring-gap)); --pv-thumb-edge-halo: 0 0 0 var(--pv-thumb-edge-width) var(--pv-thumb-edge-color), 0 0 0 var(--pv-thumb-ring-offset) var(--pv-thumb-halo-color); --pv-thumb-outer-ring: 0 0 0 var(--pv-thumb-outer-offset) var(--pv-thumb-halo-color), 0 0 0 calc(var(--pv-thumb-outer-offset) + var(--pv-thumb-thin-width)) var(--ring); }
+@media (prefers-color-scheme: dark) { .pv-thumb-frame[data-pv-platform="phone"] { --pv-thumb-halo-color: var(--backdrop); } }
+.pv-thumb:hover .pv-thumb-frame { outline: calc(var(--pv-thumb-thin-width) + var(--pv-thumb-snap-margin)) solid var(--ring); outline-offset: var(--pv-thumb-ring-offset); box-shadow: var(--pv-thumb-edge-halo); }
+/* The current cell's ring is in the text colour, as the current tab's bar is, so current never looks like hover or focus,
+   which are in the focus colour. */
+.pv-thumb:has(.pv-thumb-name[aria-current="true"]) .pv-thumb-frame { outline: calc(var(--pv-thumb-thick-width) + var(--pv-thumb-snap-margin)) solid var(--foreground); outline-offset: var(--pv-thumb-ring-offset); box-shadow: var(--pv-thumb-edge-halo); }
+.pv-thumb:has(.pv-thumb-name:focus-visible) .pv-thumb-frame { outline: calc(var(--focus-width) / var(--pv-zoom, 1) + var(--pv-thumb-snap-margin)) solid var(--ring); outline-offset: var(--pv-thumb-ring-offset); box-shadow: var(--pv-thumb-edge-halo), var(--pv-thumb-outer-ring); }
+.pv-thumb:has(.pv-thumb-name:focus-visible):has(.pv-thumb-name[aria-current="true"]) .pv-thumb-frame { outline-width: calc(var(--pv-thumb-thick-width) + var(--pv-thumb-snap-margin)); box-shadow: var(--pv-thumb-edge-halo), var(--pv-thumb-outer-ring), 0 0 0 calc(var(--pv-thumb-outer-offset) + var(--pv-thumb-thin-width) + var(--focus-field-halo) / var(--pv-zoom, 1)) var(--ring-halo); }
+.pv-thumb[data-dim] .pv-thumb-frame { opacity: 0.3; }
+.pv-thumb[data-dim] .pv-thumb-name { color: var(--muted-foreground); }
+.pv-mark-st { position: absolute; z-index: var(--layer-mark); top: calc(-1 * var(--spacing-1)); right: calc(-1 * var(--spacing-1)); display: grid; padding: var(--spacing-0_5); border-radius: 50%; background: var(--background); pointer-events: none; }
+.pv-mark-st svg { width: var(--size-mark); height: var(--size-mark); }
+.pv-thumb .pv-count { position: absolute; z-index: var(--layer-mark); left: calc(-1 * var(--spacing-1)); bottom: calc(-1 * var(--spacing-1)); box-shadow: 0 0 0 var(--border-width-thick) var(--backdrop); pointer-events: none; }
+.pv-flowmap { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
+.pv-flowmap path.pv-edge { fill: none; stroke: var(--muted-foreground); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pv-flowmap path.pv-edge[data-active] { stroke: var(--foreground); stroke-width: 3; }
+.pv-flowmap :is(.pv-head, .pv-tail) { fill: var(--muted-foreground); }
+.pv-board[data-flows="off"] .pv-flowmap { display: none; }
+.pv-board-empty { position: sticky; left: 0; margin: 0 0 var(--spacing-3); padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); }
+#panel-board { cursor: grab; }
+#panel-board.pv-panning { cursor: grabbing; user-select: none; }
+
+/* The design system: tokens and components. */
+.pv-system { max-width: 70rem; margin: 0 auto; padding: var(--spacing-6) var(--spacing-8) calc(16 * var(--spacing-1)); display: grid; gap: var(--spacing-8); }
+.pv-system h2 { margin: 0 0 var(--spacing-1); font-size: var(--text-display); font-weight: var(--font-weight-semibold); }
+.pv-system h3 { margin: var(--spacing-4) 0 var(--spacing-2); font-size: var(--text-body); color: var(--foreground); font-weight: var(--font-weight-semibold); }
+.pv-system h4 { margin: var(--spacing-3) 0 var(--spacing-2); font-size: var(--text-meta); color: var(--muted-foreground); font-weight: var(--font-weight-semibold); }
+.pv-source + .pv-source { margin-top: var(--spacing-4); border-top: var(--border-width-thin) solid var(--border); }
+.pv-path { grid-column: 2; color: var(--muted-foreground); font-size: var(--text-meta); overflow-wrap: anywhere; }
+.pv-document-components ul { list-style: none; margin: 0; padding: 0; }
+.pv-document-components li { display: inline-flex; align-items: center; gap: var(--spacing-1); }
+.pv-lede { margin: 0 0 var(--spacing-2); color: var(--foreground); max-width: 56ch; }
+.pv-panel { background: var(--background); border: var(--border-width-thin) solid var(--border); border-radius: var(--radius-lg); padding: var(--spacing-1) var(--spacing-4) var(--spacing-4); }
+/* A column is never wider than the panel, so text at 200% on a phone wraps a token rather than scrolling the view sideways. */
+.pv-tokens { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.75rem), 1fr)); gap: var(--spacing-2) var(--spacing-4); align-items: start; }
+.pv-token { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--spacing-0_5) var(--spacing-2); align-items: center; align-content: start; }
+.pv-token code { overflow-wrap: anywhere; }
+.pv-token > :first-child { grid-column: 1; grid-row: 1 / span 2; }
+.pv-token code { grid-column: 2; }
+.pv-value { grid-column: 2; color: var(--muted-foreground); font-size: var(--text-meta); overflow-wrap: anywhere; }
+.pv-swatch { display: flex; width: 2.75rem; height: 2rem; border-radius: var(--radius-sm); overflow: hidden; border: var(--border-width-thin) solid var(--input); }
+.pv-swatch i { flex: 1; }
+/* A spacing bar stops at 8rem, so a large token, such as a page width, keeps its name and value beside it; its value says the rest. */
+.pv-bar-sample { height: 0.75rem; border-radius: var(--radius-full); background: var(--foreground); min-width: 0.125rem; max-width: 8rem; }
+.pv-radius { width: 2rem; height: 2rem; border: var(--border-width-thick) solid var(--foreground); border-right-color: transparent; border-bottom-color: transparent; }
+.pv-sample { grid-column: 1 / -1; font-size: var(--text-display); overflow-wrap: anywhere; }
+/* The list of components is a container, so each card stacks by its own width: its facts over its specimens where the two
+   columns and a specimen's width do not fit side by side. In ems of the card's text, so text at 200% stacks it on a wide
+   window too (576 px at the default size). */
+.pv-components { display: grid; gap: var(--spacing-3); container: components / inline-size; }
+.pv-component { background: var(--background); border: var(--border-width-thin) solid var(--border); border-radius: var(--radius-lg); display: grid; grid-template-columns: minmax(12.5rem, 17.5rem) minmax(0, 1fr); overflow: hidden; }
+.pv-component-facts { padding: var(--spacing-3) var(--spacing-4); border-right: var(--border-width-thin) solid var(--border); display: grid; gap: var(--spacing-2); align-content: start; }
+.pv-component-facts h3 { margin: 0; font: var(--font-weight-semibold) var(--text-title)/1.3 var(--font-mono); color: var(--foreground); }
+@container components (width < 36em) {
+  .pv-component { grid-template-columns: minmax(0, 1fr); }
+  .pv-component-facts { border-right: 0; border-bottom: var(--border-width-thin) solid var(--border); }
+}
+.pv-chips { display: flex; flex-wrap: wrap; gap: var(--spacing-1); }
+.pv-chip { display: inline-flex; align-items: center; gap: var(--spacing-1); min-height: var(--size-target); padding: 0 var(--spacing-2); border-radius: var(--radius-lg); border: var(--border-width-thin) solid var(--input); background: var(--muted); color: var(--foreground); font-size: var(--text-meta); cursor: pointer; }
+span.pv-chip { cursor: default; }
+button.pv-chip:hover { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+.pv-specimens { padding: var(--spacing-4); display: flex; flex-wrap: wrap; gap: var(--spacing-4); align-items: flex-start; background: var(--backdrop); }
+.pv-specimen { display: grid; gap: var(--spacing-1_5); }
+.pv-specimen span { color: var(--foreground); font-size: var(--text-meta); }
+.pv-specimen iframe { border: 0; border-radius: var(--radius-sm); width: 21.25rem; max-width: 100%; height: 5rem; background: Canvas; box-shadow: 0 0 0 var(--border-width-thin) var(--input); }
+.pv-empty { color: var(--muted-foreground); margin: var(--spacing-2) 0; }
+
+/* The comments and the build details: the tabs, the body that scrolls, and the foot that ends the round. The panel is a
+   container of its own size, so its parts follow its height. */
+.pv-inspector { border-left: var(--border-width-thin) solid var(--border); container: inspector / size; }
+.pv-iparts { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
+/* A panel too short for its foot and a body to read, as at a large text size, scrolls as one: the tabs, the body, then
+   the foot, so no part is cut to nothing. The rule is in ems of the panel's text, so text at 200% takes it on a laptop too
+   (640 px at the default size). */
+@container inspector (height < 40em) {
+  .pv-iparts { display: block; overflow-y: auto; scrollbar-width: thin; }
+  .pv-ibody { overflow: visible; }
+}
+.pv-itabs { flex-wrap: wrap; min-height: var(--size-tab-row); padding: 0 var(--spacing-4); border-bottom: var(--border-width-thin) solid var(--border); }
+.pv-itabs > button { gap: var(--spacing-1_5); }
+.pv-ibody { overflow-y: auto; min-height: 0; scrollbar-width: thin; }
+/* Each panel that scrolls keeps room for a focus ring at its edge, so focus scrolls a control in with its ring whole. */
+:is(.pv-nav, .pv-scroller, .pv-ibody, .pv-iparts, .pv-banner ul, .pv-rows.pv-ids, .pv-strip, .dialog) { scroll-padding: var(--focus-ring-room); }
+.pv-hint { margin: 0; color: var(--muted-foreground); }
+.pv-comments-panel { padding: 0 var(--spacing-4) var(--spacing-3); }
+.pv-compose { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); padding: var(--spacing-3) 0; }
+.pv-form { display: grid; gap: var(--spacing-2); padding: var(--spacing-0_5) 0 var(--spacing-3); border-bottom: var(--border-width-thin) solid var(--border); }
+.pv-form label { display: grid; gap: var(--spacing-1); color: var(--muted-foreground); }
+.pv-form .field, .pv-form .select { min-width: 0; }
+.pv-form .pv-type { display: grid; gap: var(--spacing-1); color: var(--muted-foreground); }
+.pv-form .seg { width: max-content; flex-wrap: wrap; }
+.pv-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-1_5); }
+.pv-comments { list-style: none; margin: 0; padding: 0; }
+.pv-comment { display: grid; grid-template-columns: var(--size-row) minmax(0, 1fr); gap: var(--spacing-1) var(--spacing-2); padding: var(--spacing-3) 0; border-top: var(--border-width-thin) solid var(--border); overflow-wrap: anywhere; }
+.pv-comment:first-child { border-top: 0; }
+.pv-comment[data-active] { margin: 0 calc(-1 * var(--spacing-4)); padding: var(--spacing-3) var(--spacing-4); border-top-color: transparent; background: var(--comment-subtle); }
+.pv-num { display: grid; place-items: center; width: var(--size-row); height: var(--size-row); margin-top: var(--spacing-0_5); border-radius: 50%; background: var(--comment); color: var(--comment-foreground); font: var(--font-weight-semibold) var(--text-meta)/1 var(--font-sans); }
+.pv-type-tag { font-weight: var(--font-weight-semibold); }
+.pv-on { color: var(--muted-foreground); }
+.pv-by-part { display: inline-block; }
+.pv-comment p { margin: var(--spacing-0_5) 0 0; grid-column: 2; white-space: pre-line; }  /* a line break in a comment shows as one */
+.pv-acts { grid-column: 2; display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-3); margin-top: var(--spacing-0_5); }
+.pv-link { justify-content: center; min-width: var(--size-target); }
+.pv-link[aria-pressed="true"] { color: var(--foreground); font-weight: var(--font-weight-semibold); }
+.pv-earlier { margin-top: var(--spacing-1_5); padding-top: var(--spacing-3); border-top: var(--border-width-thin) solid var(--border); }
+.pv-earlier h2 { display: flex; justify-content: space-between; gap: var(--spacing-2); font-size: var(--text-body); font-weight: var(--font-weight-semibold); }
+.pv-earlier h2 span { color: var(--muted-foreground); font-weight: var(--font-weight-normal); }
+.pv-earlier .pv-comments { margin-top: var(--spacing-1); }
+.pv-earlier .pv-comment { border-top: 0; padding-bottom: var(--spacing-1); }
+.pv-rid { font-family: var(--font-mono); font-size: var(--text-meta); color: var(--muted-foreground); }
+.pv-status-tag { grid-column: 1; align-self: start; padding: 0 var(--spacing-1); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-sm); color: var(--muted-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-semibold); }
+.pv-status-tag[data-done="false"] { border-color: var(--comment); color: var(--comment); }
+.pv-earlier .pv-comment:has(.pv-status-tag) { grid-template-columns: auto minmax(0, 1fr); }
+.pv-earlier .pv-comment:has(.pv-status-tag) p { grid-column: 2; }
+.pv-done { margin-top: var(--spacing-1_5); }
+.pv-done summary { cursor: pointer; color: var(--muted-foreground); }
+.pv-finish { display: grid; gap: var(--spacing-2); padding: var(--spacing-3) var(--spacing-4) var(--spacing-4); border-top: var(--border-width-thin) solid var(--border); background: var(--background); }
+.pv-finish label { display: grid; gap: var(--spacing-1); color: var(--muted-foreground); }
+/* The closing block: what is left before the round ends, at the size of a title, and the one step that ends it. */
+.pv-answer { padding-inline-start: var(--spacing-2); border-inline-start: var(--border-width-thick) solid var(--border); color: var(--muted-foreground); }
+.pv-closing { display: grid; gap: var(--spacing-2); }
+.pv-closing p { margin: 0; }
+.pv-closing-h { font-size: var(--text-title); font-weight: var(--font-weight-semibold); line-height: var(--text-title--line-height); }
+.pv-closing-p { color: var(--muted-foreground); }
+.pv-alt { display: flex; flex-wrap: wrap; gap: var(--spacing-0_5) var(--spacing-4); }
+.pv-next { margin: var(--spacing-1) 0 0; padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-md); background: var(--muted); color: var(--muted-foreground); }
+.pv-next b { color: var(--foreground); font-weight: var(--font-weight-semibold); }
+.pv-comment.pv-gone { grid-template-columns: minmax(0, 1fr) auto; align-items: center; color: var(--muted-foreground); }
+.pv-build { display: grid; gap: var(--spacing-4); padding: var(--spacing-4); }
+.pv-build h2 { font-size: var(--text-title); font-weight: var(--font-weight-semibold); line-height: var(--text-title--line-height); overflow-wrap: anywhere; }
+.pv-row-id { display: flex; align-items: center; gap: var(--spacing-1_5); margin-top: var(--spacing-0_5); color: var(--muted-foreground); min-width: 0; }
+.pv-row-id code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A heading names its part alone, so a button beside it stands outside it, in the same row. */
+:is(.pv-build h3, .pv-build-h) { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); min-height: var(--size-target); margin-bottom: var(--spacing-1); font-size: var(--text-body); font-weight: var(--font-weight-semibold); }
+.pv-build-h > h3 { min-height: 0; margin: 0; }
+.pv-rows { display: grid; }
+.pv-rows > button { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--spacing-2); min-height: var(--size-control); padding: var(--spacing-1) var(--spacing-1_5); border: 0; border-bottom: var(--border-width-thin) solid var(--border); border-radius: 0; background: none; text-align: left; cursor: pointer; }
+.pv-rows > button:hover { background: var(--muted); }
+.pv-rows .pv-var, .pv-rows .pv-n { color: var(--muted-foreground); }
+.pv-rows > button > span:first-child { overflow-wrap: anywhere; }
+.pv-rows.pv-ids { max-height: 17.5rem; overflow-y: auto; scrollbar-width: thin; }
+.pv-rows.pv-ids > button { display: block; min-height: var(--size-id-row); padding: var(--spacing-0_5) var(--spacing-1_5); font: var(--text-meta)/1.5 var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The shortcut sheet. */
+.pv-keys { margin: 0; padding: var(--spacing-1_5) var(--spacing-4) var(--spacing-3); display: grid; }
+.pv-keys div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--spacing-3); min-height: var(--size-key-row); border-bottom: var(--border-width-thin) solid var(--border); }
+.pv-keys div:last-child { border-bottom: 0; }
+.pv-keys dt { margin: 0; }
+.pv-keys dd { margin: 0; display: flex; gap: var(--spacing-1); }
+.pv-keys-switch { padding: 0 var(--spacing-4) var(--spacing-3); }
+.pv-keys-switch button { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--spacing-2); padding: var(--spacing-2) var(--spacing-2); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-md); background: none; text-align: left; cursor: pointer; }
+.pv-keys-switch button > span:first-child { display: grid; gap: var(--spacing-0_5); font-weight: var(--font-weight-medium); }
+.pv-keys-switch small { color: var(--muted-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-normal); }
+
+/* A toast: each outcome shows for a few seconds at the foot of the window, clear of the panels' actions. The live region
+   says the same words once, so a screen reader skips the toast. Full screen shows none. */
+.pv-toast { z-index: var(--layer-toast); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity var(--duration-fast) var(--ease-standard), visibility 0s linear var(--duration-fast); }
+.pv-toast[data-on] { opacity: 1; visibility: visible; transition-delay: 0s; }
+/* At the top, at every width, a toast sits where the script places it when it shows: under the display bar or the
+   header, at the place that covers nothing a person can see and use, Compare's picture included (data-at, --pv-toast-top). */
+.pv-toast[data-at="top"] { top: var(--pv-toast-top, calc(var(--pv-top-h) + var(--spacing-2))); bottom: auto; }
+
+/* The side panels: [ and ] hide or show them, and a web or desktop frame too wide for them closes them on its own. */
+@media (width >= 80rem) {
+  .pv-app[data-panels="screens"]:not([data-present="true"]) .pv-work { grid-template-columns: var(--pv-nav-column) minmax(0, 1fr); }
+  .pv-app[data-panels="inspector"]:not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr) var(--pv-inspector-column); }
+  .pv-app[data-panels="none"]:not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr); }
+  .pv-app:is([data-panels="screens"], [data-panels="none"]) .pv-inspector { display: none; }
+}
+@media (48rem <= width < 80rem) {
+  .pv-app[data-menu="sidebar"]:is([data-panels="inspector"], [data-panels="none"]):not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr); }
+  /* While the comments drawer covers the artboard, the view keeps room for it on the right: the caption sits in the part that
+     shows, and the frame scrolls out from under the drawer. The line to type, which steps aside while the drawer is open, keeps
+     the width it has with the drawer closed: it wraps the same and keeps its room, so the drawer never moves the design. */
+  .pv-app:not([data-dock="true"]):has(.pv-inspector[data-open="true"]) .pv-view { padding-inline-end: calc(var(--spacing-6) + min(var(--pv-inspector-width), 92vw)); }
+  .pv-app:not([data-dock="true"]):has(.pv-inspector[data-open="true"]) .pv-view { position: relative; }
+  .pv-app:not([data-dock="true"]):has(.pv-inspector[data-open="true"]) .pv-view::after { content: ""; position: absolute; top: 0; left: calc(100% + min(var(--pv-inspector-width), 92vw)); width: var(--border-width-thin); height: var(--border-width-thin); }
+  .pv-app:not([data-dock="true"]):has(.pv-inspector[data-open="true"]) .pv-caption-next { width: calc(100% + min(var(--pv-inspector-width), 92vw)); }
+}
+.pv-app[data-menu="sidebar"]:is([data-panels="inspector"], [data-panels="none"]) .pv-nav { display: none; }
+/* The board holds every screen and state, so it takes the Screens panel's place. */
+.pv-app[data-tab="board"][data-menu="sidebar"] .pv-nav { display: none; }
+@media (width >= 80rem) {
+  .pv-app[data-tab="board"]:not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr) var(--pv-inspector-column); }
+  .pv-app[data-tab="board"]:is([data-panels="screens"], [data-panels="none"]):not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr); }
+}
+@media (48rem <= width < 80rem) {
+  .pv-app[data-tab="board"][data-menu="sidebar"]:not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr); }
+  /* While the comments dock beside the artboard, the Screens panel makes way: one side panel at a time keeps the frame readable. */
+  .pv-app[data-dock="true"][data-menu="sidebar"] .pv-nav { display: none; }
+  .pv-app[data-dock="true"][data-menu="sidebar"]:not([data-present="true"]) .pv-work { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Narrower windows: the comments, then the Screens panel, become drawers. */
+@media (width < 80rem) {
+  #caption-screen, #caption-theme { display: none; }
+  .pv-next.pv-caption-next { display: block; }
+  /* The line to type stands in for the closing at the drawer's foot, as the side column holds it on a wide window. While the
+     drawer is open its foot shows the next step, so the line steps aside and keeps its room: the next step shows once. */
+  .pv-app:has(.pv-inspector[data-open="true"]) .pv-caption-next { visibility: hidden; }
+  .pv-app[data-dock="true"] .pv-center { margin-inline-end: min(var(--pv-inspector-width), 92vw); }
+  :root { --pv-nav-column: min(var(--pv-nav-width), 38vw); }
+  .pv-work { grid-template-columns: var(--pv-nav-column) minmax(0, 1fr); }
+  .pv-inspector { position: fixed; z-index: var(--layer-drawer); top: var(--pv-top-h); right: 0; bottom: 0; width: min(var(--pv-inspector-width), 92vw); border-left: var(--border-width-thin) solid var(--input); }
+  .pv-inspector:not([data-open="true"]) { display: none; }
+}
+/* One owner decides which parts of the dock show: the menu's mode, which menuMode() writes on the app as data-menu. They
+   show in the drawer mode, a phone-width window's, and are hidden in every other, before the script runs too. */
+.pv-app:not([data-menu="drawer"]) :is(.pv-menu-close, .pv-build-toggle, .pv-dock, .pv-dock-v, .pv-dock-l2) { display: none; }
+.pv-app[data-menu="drawer"] .pv-dock { display: block; }
+.pv-app[data-menu="drawer"] :is(.pv-build-toggle, .pv-dock-v, .pv-dock-l2) { display: flex; }
+.pv-dock-l1 { display: flex; align-items: center; gap: var(--spacing-1); }
+.pv-app[data-menu="drawer"] .pv-work { grid-template-columns: minmax(0, 1fr); }
+.pv-app[data-menu="drawer"] .pv-nav { position: fixed; z-index: var(--layer-drawer-over); top: var(--pv-top-h); left: 0; bottom: 0; width: min(20rem, 92vw); border-right: var(--border-width-thin) solid var(--input); }
+.pv-app[data-menu="drawer"] .pv-menu-close { display: inline-grid; }
+/* A bar too narrow for one row at the reader's text size gives the tabs a row of their own. The rule is in ems of the
+   viewer's text, so text at 200% takes the two rows on a wide window too (768 px at the default size). */
+@container app (width < 54.86em) {
+  .pv-work { --pv-top-h: calc(var(--size-bar) + var(--size-control) + var(--spacing-3)); }
+  .pv-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: var(--size-bar) calc(var(--size-control) + var(--spacing-3)); gap: 0 var(--spacing-2); }
+  .pv-top > .pv-menu-toggle { grid-column: 1; grid-row: 1; }
+  .pv-id { grid-column: 2; grid-row: 1; flex-direction: column; align-items: flex-start; gap: 0; align-self: center; }
+  .pv-product { max-width: 100%; }
+  .pv-sub { display: none; max-width: 100%; }
+  .pv-sub-short { display: block; }
+  .pv-top .tabs { grid-column: 1 / -1; grid-row: 2; justify-content: space-around; margin: 0 calc(-1 * var(--spacing-2)) 0 calc(-1 * var(--spacing-3)); border-top: var(--border-width-thin) solid var(--border); }
+  .pv-end { grid-column: 3; grid-row: 1; flex: none; }
+}
+@media (width < 48rem) {
+  /* The top bar's two rows and its border; the bar takes its own height, so text at 200% may give it a third row. */
+  :root { --pv-top-h: calc(var(--size-bar) + var(--size-control) + var(--spacing-3) + var(--border-width-thin)); }
+  .pv-app { grid-template-rows: auto minmax(0, 1fr) calc(2 * var(--size-control)); }
+  .pv-pop { right: auto; left: 0; }
+  .pv-top { padding: 0 var(--spacing-2) 0 var(--spacing-3); }
+  .pv-id { grid-column: 1 / 3; }
+  /* The three panel buttons make the tab bar: the Screens panel, the comments, and the build details. */
+  .pv-dock { border-top: var(--border-width-thin) solid var(--border); background: var(--background); }
+  /* They sit at the window's foot and touch each other, so each draws its focus ring inside. */
+  :is(.pv-menu-toggle, .pv-inspect-toggle, .pv-build-toggle):focus-visible { outline-offset: var(--focus-inside-offset); box-shadow: inset 0 0 0 var(--focus-inside-gap) var(--background); }
+  .pv-menu-toggle, .pv-inspect-toggle, .pv-build-toggle { position: fixed; z-index: var(--layer-dock); bottom: 0; width: 33.334%; height: calc(2 * var(--size-control)); flex-direction: column; justify-content: center; gap: var(--spacing-1); padding: 0; border: 0; border-radius: 0; background: none; color: var(--muted-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-medium); }
+  .pv-menu-toggle { left: 0; }
+  .pv-inspect-toggle { left: 33.334%; }
+  .pv-build-toggle { left: 66.667%; }
+  .pv-menu-toggle[aria-expanded="true"], .pv-inspect-toggle[aria-expanded="true"], .pv-build-toggle[aria-expanded="true"] { background: var(--muted); border-top: var(--border-width-thick) solid var(--foreground); }
+  /* While the comment form is open, the drawer's foot keeps only its one button, so the field and Save have the room. */
+  .pv-inspector:has(#comment-form:not([hidden])) :is(.pv-closing > p, .pv-alt) { display: none; }
+  /* The first line is one text line tall whatever it holds, so the three labels under it share one line. */
+  .pv-dock-l1 { min-height: calc(var(--text-body) * var(--text-body--line-height)); color: var(--foreground); }
+  .pv-dock-v { font-size: var(--text-body); font-weight: var(--font-weight-semibold); }
+  .pv-bar { padding: var(--spacing-1_5) var(--spacing-2); gap: var(--spacing-1_5); }
+  /* The place row comes first, as the markup holds it, so Tab follows the eye. */
+  .pv-bar .pv-where { width: 100%; justify-content: space-between; margin: 0 0 var(--spacing-0_5); }
+  /* The arrows keep the target size, so the screen's name takes the room first. */
+  #where-prototype { grid-template-columns: var(--size-target) auto var(--size-target); }
+  .pv-bar #zoom-group, .pv-bar #flow-lines, .pv-dot { display: none; }
+  .pv-app[data-menu="drawer"] .pv-nav, .pv-inspector { bottom: calc(2 * var(--size-control)); }
+  /* At the foot, a toast shows above the dock. */
+  .pv-toast { bottom: calc(2 * var(--size-control) + var(--spacing-2)); }
+  /* Compare stacks under the frame instead of beside it. */
+  .pv-device { flex-direction: column; gap: var(--spacing-4); }
+  .pv-compare-missing { width: 0; min-width: 100%; }  /* as wide as the frame, never wider: its own text adds no width */
+  .pv-view { padding: var(--spacing-3) var(--spacing-2) var(--spacing-4); justify-content: flex-start; }
+  /* A phone fits by its width and the artboard scrolls, so the line to type comes first, where it shows. The script
+     puts it before the frame in the markup too, so Tab meets it there (placeNextLine). */
+  .pv-next.pv-caption-next { margin: 0 auto var(--spacing-3); }
+  .pv-board { padding: var(--spacing-3) 0 var(--spacing-4) var(--spacing-3); width: auto; }
+  /* At phone width each row's name takes a line over its strip, and the strip scrolls on its own. */
+  .pv-board-rows { display: block; width: auto; }
+  .pv-flowmap { display: none; }
+  .pv-rowh { padding: var(--spacing-3) 0 0; display: flex; gap: var(--spacing-2); align-items: baseline; }
+  .pv-strip { overflow-x: auto; padding: var(--spacing-3); }  /* room on every side for a cell's focus ring and its halo, which the strip clips */
+  .pv-system { padding-inline: var(--spacing-3); }
+}
+/* A narrow window at a large text size, under 20em of the viewer's text (320 px at 200%, never at 100%): the product's
+   name takes a row of its own, the dock's labels wrap, and the artboard's column scrolls as one, its bar with it, so the
+   view under the bar keeps the column's whole height and nothing draws over the dock. A drawer takes the window's
+   height, since the top bar may have scrolled away. */
+@container app (width < 20em) {
+  .pv-top { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+  .pv-id { grid-column: 1; grid-row: 1; padding-block: var(--spacing-1); }
+  .pv-id, .pv-product { white-space: normal; overflow-wrap: anywhere; }
+  .pv-end { grid-column: 1; grid-row: 2; justify-content: flex-end; }
+  .pv-top .tabs { grid-row: 3; }
+  /* The state takes a row of its own under the screen's name, so the place needs only its two arrows and the whole state,
+     and a font wider than the design's cannot push the next arrow out of the window. */
+  .pv-crumb { grid-template-columns: minmax(2ch, auto); }
+  .pv-crumb .pv-sep { display: none; }
+  .pv-center { display: block; overflow-y: auto; }
+  .pv-scroller { height: 100%; }
+  .pv-dock-l1 { flex-wrap: wrap; justify-content: center; max-width: 100%; }
+  .pv-dock-l2, .pv-dock-v { white-space: normal; text-align: center; hyphens: auto; overflow-wrap: anywhere; }
+  :is(.pv-menu-toggle, .pv-inspect-toggle, .pv-build-toggle) { gap: 0; }
+  .pv-app[data-menu="drawer"] .pv-nav, .pv-inspector { top: 0; }
+}
+/* At 200% text the chrome reflows: the app never grows past the window, a full-width button wraps its words, and on a
+   phone the three views share the tab row. */
+.pv-app, .pv-center { grid-template-columns: minmax(0, 1fr); }
+.pv-app .btn-block { white-space: normal; text-align: start; }
+.pv-bar .seg, .pv-compose { flex-wrap: wrap; }
+@media (width < 48rem) { .pv-top .tabs { gap: 0; } .pv-top .tabs > button { flex: 1 1 auto; min-width: 0; justify-content: center; } }
+
+/* Forced colours: a Test view that is on, and the Board's current cell, keep the system's highlight, as the shared
+   components' pressed, chosen, and current states do. Forced colours drop shadows, so a focused cell draws its second ring
+   in the text colour itself. */
+@media (forced-colors: active) {
+  :is(.pv-pop button[aria-pressed="true"], .pv-keys-switch button[aria-checked="true"]) .switch-state { forced-color-adjust: none; background: SelectedItem; color: SelectedItemText; border-color: SelectedItem; }
+  .pv-thumb:has(.pv-thumb-name[aria-current="true"]) .pv-thumb-frame { outline-color: Highlight; }
+  .pv-thumb:has(.pv-thumb-name:focus-visible) .pv-thumb-frame { forced-color-adjust: none; outline-color: CanvasText; box-shadow: 0 0 0 var(--pv-thumb-outer-offset) Canvas, 0 0 0 calc(var(--pv-thumb-outer-offset) + var(--pv-thumb-thin-width)) CanvasText; }
+  .pv-thumb:has(.pv-thumb-name:focus-visible):has(.pv-thumb-name[aria-current="true"]) .pv-thumb-frame { outline-color: Highlight; }
+}

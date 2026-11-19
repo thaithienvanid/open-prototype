@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platforms" content="web">
+<meta name="themes" content="light dark">
+<title>{{title}}</title>
+<style data-proto-tokens>
+:root {
+  color-scheme: light dark;
+  --spacing-3: 1rem;
+  --radius-control: 0.5rem;
+  --spacing-target: 2.75rem;
+  --typography-body: 400 1rem/1.5 system-ui, sans-serif;
+  --color-surface: light-dark(#fafafb, #111317);
+  --color-text: light-dark(#1c1e21, #dfe2e6);
+  --color-text-muted: light-dark(#5b616b, #b0b6bf);
+  --color-border: light-dark(#858b94, #6b717a);
+  --color-accent: light-dark(#1d4ed8, #93c5fd);
+}
+</style>
+<style>
+body { margin: 0; padding: var(--spacing-3); font: var(--typography-body); background: var(--color-surface); color: var(--color-text); }
+button { font: inherit; min-height: var(--spacing-target); padding: 0 var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-control); background: transparent; color: var(--color-accent); }
+button:disabled { color: var(--color-text-muted); border-style: dashed; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<main><h1 data-proto-slot="title"></h1>
+<section data-proto-screen="start" data-proto-title="Start" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="start-ready">
+    <p data-proto-text="start.body"></p>
+    <button type="button" data-proto-go="start/empty" data-testid="start-clear" data-proto-text="start.clear"></button>
+  </div>
+  <div data-proto-state="empty" data-testid="start-empty">
+    <p data-proto-text="start.empty"></p>
+    <button type="button" data-proto-go="start/ready" data-testid="start-undo" data-proto-text="start.undo"></button>
+  </div>
+</section></main>
+<script type="application/json" data-proto-fixtures>
+{
+  "product": "Your product",
+  "start": { "body": "Replace this screen with your first one.", "clear": "Clear it", "empty": "Nothing here yet.", "undo": "Bring it back" }
+}
+</script>
+</body>
+</html>

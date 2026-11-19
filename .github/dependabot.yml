@@ -1,0 +1,21 @@
+# Dependabot proposes an update once a week, in one pull request for the pinned actions of the workflows and one for the
+# three development dependencies. An action stays pinned by its full commit SHA, and Dependabot moves the SHA and the
+# release in the comment beside it together. The tool has no runtime dependency, so nothing else is watched. The Bun
+# image of `tools/check-linux.sh` is named in a shell script, which Dependabot does not read; raise it by hand with Bun.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      development:
+        dependency-type: development
+        patterns: ["*"]

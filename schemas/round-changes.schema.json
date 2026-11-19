@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:open-prototype:1:round-changes",
+  "title": "Round changes",
+  "description": "What changed in a round, `<design folder>/rounds/<design name>/<N>/changes.json`, so a person sees each change next to the comment it answers. The page marks a comment done once a later round answers it, and `open-prototype check` reports an answer that names no comment of an earlier round.",
+  "examples": [
+    {
+      "changes": [
+        {
+          "answers": [
+            "r1-1"
+          ],
+          "summary": "The button now says which items it saves."
+        }
+      ]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "changes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "description": "The version of the round files, apart from the version of what the tool prints; a file without it reads as 1. A newer one asks for a newer tool, and the check leaves the file out."
+    },
+    "changes": {
+      "type": "array",
+      "maxItems": 500,
+      "description": "The changes made in this round.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "summary"
+        ],
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What changed, in a sentence a person reads in the page beside each comment it answers."
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^r[1-9][0-9]*-[1-9][0-9]*$"
+            },
+            "description": "The ids of the comments this change answers, each from an earlier round of the same design."
+          },
+          "screen": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The screen the change shows on, by its `data-proto-screen` id: a note for whoever reads the file, such as the next reviewer. The page does not show it."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The state, by its `data-proto-state` name, with the screen: a note for whoever reads the file, as `screen` is."
+          }
+        }
+      }
+    }
+  }
+}

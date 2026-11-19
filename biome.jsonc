@@ -1,0 +1,61 @@
+// Biome lints and formats the tool's own source: `bun run lint`, `bun run format`, and a step of `bun run check`.
+// A rule is turned off here only where the code is right and the rule does not fit, with the reason beside it.
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    // The source of the tool, the OpenCode plugin, the viewer, the tests, and the tools. Data a test reads, data from a standard, and
+    // generated files stay as they are: the built viewer in assets/, dist/, and docs/reference.md are outside these
+    // folders. viewer.html is the build's template: its slots, such as {{chrome}} inside a style element, are not CSS
+    // until the build fills them, so Biome cannot read the file.
+    "includes": [
+      "src/**",
+      "opencode/**",
+      "viewer/**",
+      "tests/**",
+      "tools/**",
+      "!src/html/entities.json",
+      "!tests/golden",
+      "!tests/projects",
+      "!tests/recorded.json",
+      "!tests/viewer/designs",
+      "!tests/viewer/walk.recorded.json",
+      "!viewer/viewer.html"
+    ]
+  },
+  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 160 },
+  "javascript": { "formatter": { "quoteStyle": "double", "semicolons": "always", "trailingCommas": "all", "arrowParentheses": "always" } },
+  // The viewer's styles go into every page as they are written, one rule to a line. Biome's CSS formatter has no
+  // one-line form, so it is off, and Biome still lints the styles.
+  "css": { "formatter": { "enabled": false } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "complexity": {
+        // The !important marks left are the ones a rule must have to win over every part's own display: [hidden],
+        // reduced motion, the presenting mode, and the frame's outlines. A suppression comment would ship in every page.
+        "noImportantStyles": "off"
+      },
+      "style": {
+        // The styles are grouped by part, and a state or variant can stand before its base rule. In each case the
+        // rule found, the more specific rule is the one meant to win, so the order changes nothing that applies.
+        "noDescendingSpecificity": "off"
+      },
+      "suspicious": {
+        // Each pattern that names a control character does so to find it, to refuse or replace it, as the formats
+        // the tool reads require.
+        "noControlCharactersInRegex": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      // A test states what it expects to find with `!`. When the value is missing, the test fails at that line, which
+      // is the check the test makes.
+      "includes": ["tests/**"],
+      "linter": { "rules": { "style": { "noNonNullAssertion": "off" } } }
+    }
+  ],
+  "assist": { "enabled": true, "actions": { "source": { "organizeImports": "on" } } }
+}

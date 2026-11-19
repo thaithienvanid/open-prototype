@@ -1,0 +1,28 @@
+{
+  "name": "open-prototype",
+  "owner": {
+    "name": "Van Hoang"
+  },
+  "metadata": {
+    "description": "open-prototype: design UI prototypes as plain HTML, from a first draft to a reviewed design ready to build, against your project's DESIGN.md. For designers and AI coding agents. Local-first, with no runtime dependency."
+  },
+  "plugins": [
+    {
+      "name": "open-prototype",
+      "source": "./",
+      "description": "The prototyping skill, and the open-prototype command on the PATH of Claude Code's Bash tool. It needs Bun 1.4.4 or newer.",
+      "relevance": {
+        "topic": "UI prototypes in plain HTML, checked against DESIGN.md",
+        "signals": {
+          "cli": [
+            "open-prototype"
+          ],
+          "filesRead": [
+            "**/DESIGN.md",
+            "**/prototype.config.json"
+          ]
+        }
+      }
+    }
+  ]
+}

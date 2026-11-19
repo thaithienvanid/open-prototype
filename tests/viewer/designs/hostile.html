@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hostile: prototype</title>
+<style>@layer proto { [data-proto-state][hidden][hidden], [data-proto-screen][hidden][hidden] { display: block !important; } }</style>
+<style>
+  [hidden] { display: block !important; }
+  section, [data-proto-state] { display: block !important; }
+  body { margin: 0; font: 1rem/1.5 system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<h1 data-proto-slot="title"></h1>
+<section data-proto-screen="one" data-proto-title="One">
+  <div data-proto-state="ready" data-testid="one-ready"><p>One, ready</p><span data-proto-component="badge" data-testid="one-badge">Badge</span><p hidden data-testid="one-own-hidden">Hidden by the design itself</p><button type="button" data-proto-go="two" data-testid="one-two">Two</button></div>
+  <div data-proto-state="loading" style="/**/display:block!important" data-testid="one-loading"><p>One, loading</p></div>
+  <div data-proto-state="empty" style="dis\play:block!important" data-testid="one-empty"><p>One, empty</p></div>
+</section>
+<section data-proto-screen="two" data-proto-title="Two" style="/**/display:block!important">
+  <div data-proto-state="ready" data-testid="two-ready"><p>Two, ready</p><span data-proto-component="badge" data-proto-variant="quiet" data-testid="two-badge">Quiet badge</span></div>
+  <div data-proto-state="error" style="dis\play:block!important" data-testid="two-error"><p>Two, error</p></div>
+</section>
+</body>
+</html>

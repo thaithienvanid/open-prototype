@@ -1,0 +1,12 @@
+{
+  "name": "open-prototype",
+  "version": "0.1.0",
+  "description": "Design UI prototypes as plain HTML, from a first draft to a reviewed design ready to build, against your project's DESIGN.md. The plugin gives the agent the prototyping skill. The open-prototype command comes from Bun 1.4.4 or newer: bun add -g github:thaithienvanid/open-prototype.",
+  "author": {
+    "name": "Van Hoang"
+  },
+  "homepage": "https://github.com/thaithienvanid/open-prototype",
+  "repository": "https://github.com/thaithienvanid/open-prototype",
+  "license": "Apache-2.0",
+  "logo": "docs/images/icon.svg"
+}

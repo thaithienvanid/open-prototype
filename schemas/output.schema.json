@@ -1,0 +1,1092 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:open-prototype:1:output",
+  "title": "Command output",
+  "description": "What every command that ends prints with `--json`: one object, `{schema_version, ok, target, findings, ...}`, then the command's own keys. `ok` is true when the command did its work and no finding is a problem. `$defs` holds one shape for each command, named by the command, and `refusal` for a refused request or a fault of the tool, which prints the four common keys alone. A command's own keys are null when a finding stopped it. A new optional key may be added in a minor release; a renamed, removed, or retyped key bumps `schema_version`.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ok",
+    "target",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "#/$defs/schema_version"
+    },
+    "ok": {
+      "$ref": "#/$defs/ok"
+    },
+    "target": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "findings": {
+      "$ref": "#/$defs/findings"
+    }
+  },
+  "$defs": {
+    "schema_version": {
+      "const": "1",
+      "description": "The version of this output's shape. It versions what the tool prints; a design names its own format on its `<html>` (`data-proto-format`), and a round file has its own version."
+    },
+    "ok": {
+      "type": "boolean",
+      "description": "True when the command did its work and no finding is a problem; notes alone keep it true."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      },
+      "description": "Each finding with its rule, level, file, and line. For check and build, every finding of the design; for the other commands, the findings that stopped them."
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "level",
+        "file",
+        "line",
+        "message"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "pattern": "^[a-z]+\\.[a-z0-9-]+$",
+          "description": "The rule's id, `<family>.<rule>`."
+        },
+        "level": {
+          "enum": [
+            "problem",
+            "note"
+          ]
+        },
+        "file": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The file the finding names, from the project's top, so it opens from there; null when the finding has no place."
+        },
+        "line": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "description": "The line in that file, from 1; null when the finding names the whole file."
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "names": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "refusal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings"
+      ],
+      "description": "A refused request (exit 2), with one `request.*` finding, or a fault of the tool (exit 3), with one `tool.failed` finding. Its line on stderr says the same.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "const": false
+        },
+        "target": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The design the request names, or null when it names none."
+        },
+        "findings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/finding"
+              }
+            ],
+            "properties": {
+              "rule": {
+                "type": "string",
+                "pattern": "^(request\\.[a-z-]+|tool\\.failed)$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "counts"
+      ],
+      "description": "`check`: the design's findings, and what it holds.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "counts": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "screens",
+                "states",
+                "test_ids"
+              ],
+              "properties": {
+                "screens": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "states": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "test_ids": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          ],
+          "description": "What the design holds, or null when it could not be read."
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "page"
+      ],
+      "description": "`build`: the design's findings, and the page written, or null when a finding stops it.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "page": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The page written, from the project's top."
+        }
+      }
+    },
+    "screens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "screens"
+      ],
+      "description": "`screens`: the design's screens in the order it draws them, or null when a finding stops the read.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "screens": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "title",
+                  "parent",
+                  "initial",
+                  "states"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The screen's id. In a flow it is `<flow>:<screen>`, as a link names it."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The screen's title, as the design names it."
+                  },
+                  "parent": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The id of the screen this one returns to, or null when the screen names none."
+                  },
+                  "initial": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The state the viewer opens first: the one the design declares when the screen has it, else its first state. Null when the screen has no state."
+                  },
+                  "states": {
+                    "$ref": "#/$defs/names",
+                    "description": "The screen's states, in the order the screen draws them."
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Each screen, in drawn order."
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "components"
+      ],
+      "description": "`components`: every component the design names, so the built interface's components and stories match it by name. Each list is sorted, so the same design always gives the same output.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "components": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "variants",
+                  "screens",
+                  "testids"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The component's name, lowercase words joined by hyphens."
+                  },
+                  "variants": {
+                    "$ref": "#/$defs/names",
+                    "description": "Each variant the design names. A component with none has `default`."
+                  },
+                  "screens": {
+                    "$ref": "#/$defs/names",
+                    "description": "The screens that use it. None means the chrome, on every screen."
+                  },
+                  "testids": {
+                    "$ref": "#/$defs/names",
+                    "description": "The test ids its parts carry."
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Each component, by name."
+        }
+      }
+    },
+    "shots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "shots",
+        "captured"
+      ],
+      "description": "`shots`: the views the fidelity pass takes, sized to the change, in the order to take them; with `--capture`, the pictures written.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "shots": {
+          "oneOf": [
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "screen",
+                  "state",
+                  "frame",
+                  "theme",
+                  "text",
+                  "dir",
+                  "purpose",
+                  "link",
+                  "file"
+                ],
+                "properties": {
+                  "screen": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The screen's id, as `screens` gives it."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The state the view shows."
+                  },
+                  "frame": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The device frame, by its id in the device table."
+                  },
+                  "theme": {
+                    "enum": [
+                      "light",
+                      "dark"
+                    ],
+                    "description": "The product theme."
+                  },
+                  "text": {
+                    "enum": [
+                      "100",
+                      "200"
+                    ],
+                    "description": "The text size, in percent: 200 checks text resized to 200% (WCAG 2.2 SC 1.4.4)."
+                  },
+                  "dir": {
+                    "enum": [
+                      "ltr",
+                      "rtl"
+                    ],
+                    "description": "The text direction: `rtl` checks a right-to-left layout."
+                  },
+                  "purpose": {
+                    "enum": [
+                      "matrix",
+                      "text-200",
+                      "rtl",
+                      "overview",
+                      "states",
+                      "narrow"
+                    ],
+                    "description": "Why the view is taken. `matrix`: a state of a new or reshaped screen. `text-200` and `rtl`: a screen's fullest state at 200% text or right to left, or the changed component at 200% text. `overview`: a screen a changed component appears on, as a person sees it first. `states`: where the state check reads the component's interaction states, on one variant. `narrow`: the component at the narrowest frame (WCAG 2.2 SC 1.4.10)."
+                  },
+                  "component": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "With `states`: the changed component."
+                  },
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "With `states`: its variant, `default` when it names none."
+                  },
+                  "link": {
+                    "type": "string",
+                    "pattern": "^#",
+                    "description": "The view's deep link in the viewer, at actual size: open the page's address with it."
+                  },
+                  "file": {
+                    "type": "string",
+                    "pattern": "\\.png$",
+                    "description": "The screenshot's name, its parts joined by `.`: `<screen>.<state>.<frame>.<theme>`, then `.text-200`, `.rtl`, or `.<component>.<variant>`, then `.png`. A flow's screen `<flow>:<screen>` is written `<flow>+<screen>`."
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Each view to take. A component or a screen the design does not have is a refused request; a design with no state to take is a finding."
+        },
+        "captured": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Each file written, from the project's top."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "With `--capture`, each picture written, from the project's top; null without it."
+        }
+      }
+    },
+    "stories": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "stories",
+        "missing"
+      ],
+      "description": "`stories`: the built interface's stories against the design's components. Each component variant with no story is a `stories.missing` finding, and in `missing`.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "stories": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "How many stories the index holds."
+        },
+        "missing": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "component",
+                  "variant"
+                ],
+                "properties": {
+                  "component": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "variant": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Each component variant with no story."
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "design_md",
+        "design_md_elsewhere",
+        "tokens",
+        "story_index"
+      ],
+      "description": "`project`: what the project holds for a design. It reads only, and decides nothing: whether a project is new or exists is the person's answer.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "null"
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "design_md": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/design_md"
+                }
+              ],
+              "required": [
+                "exists"
+              ]
+            }
+          ],
+          "description": "The design document the settings name, with `exists`, or null when `design_md` is null: its tokens, its component keys, and each `##` section heading with its line, so an agent knows which prose to read. It holds no prose. A missing document has `exists: false` and no tokens."
+        },
+        "design_md_elsewhere": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Each other DESIGN.md in the top folder and one level below, outside dot-folders, node_modules, and the output folder; never read."
+        },
+        "tokens": {
+          "type": "array",
+          "description": "Each token file the settings name.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file",
+              "exists"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "exists": {
+                "type": "boolean",
+                "description": "Whether anything is at the path. One the tool cannot read, such as a pipe or a folder, is there, and a `system.tokens-file` finding says why."
+              }
+            }
+          }
+        },
+        "story_index": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Storybook's index at its default place, storybook-static/index.json, when it exists; else null."
+        }
+      }
+    },
+    "new-design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "written"
+      ],
+      "description": "`new-design`: the design file written.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "written": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Each file written, from the project's top."
+        }
+      }
+    },
+    "new-design-md": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "written"
+      ],
+      "description": "`new-design-md`: the design document written.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design document, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "written": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Each file written, from the project's top."
+        }
+      }
+    },
+    "save-comments": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "saved"
+      ],
+      "description": "`save-comments`: the round file written.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "saved": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The comments file written, from the project's top."
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "written",
+        "page"
+      ],
+      "description": "`example`: the example's files written, and its page.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The design's file, from the project's top."
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "written": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Each file written, from the project's top."
+        },
+        "page": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The example's page, from the project's top."
+        }
+      }
+    },
+    "guide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "ok",
+        "target",
+        "findings",
+        "format",
+        "prefix",
+        "vocabulary",
+        "slots",
+        "head",
+        "platforms",
+        "themes",
+        "suggested_states",
+        "blocks_folder",
+        "flows_folder",
+        "token_names",
+        "reference"
+      ],
+      "description": "`guide`: the format's vocabulary as data, and the reference as Markdown.",
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schema_version"
+        },
+        "ok": {
+          "$ref": "#/$defs/ok"
+        },
+        "target": {
+          "type": "null"
+        },
+        "findings": {
+          "$ref": "#/$defs/findings"
+        },
+        "format": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prefix": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vocabulary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "name",
+              "attribute",
+              "meaning",
+              "example"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "attribute": {
+                "type": "string",
+                "minLength": 1
+              },
+              "meaning": {
+                "type": "string",
+                "minLength": 1
+              },
+              "example": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "slots": {
+          "$ref": "#/$defs/names"
+        },
+        "head": {
+          "$ref": "#/$defs/names"
+        },
+        "platforms": {
+          "$ref": "#/$defs/names"
+        },
+        "themes": {
+          "$ref": "#/$defs/names"
+        },
+        "suggested_states": {
+          "$ref": "#/$defs/names"
+        },
+        "blocks_folder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "flows_folder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token_names": {
+          "type": "array",
+          "description": "The CSS name of each kind of token the design document holds: `<prefix><path><suffix>`, the path's segments joined by \"-\".",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "group",
+              "prefix",
+              "suffix"
+            ],
+            "properties": {
+              "group": {
+                "type": "string",
+                "minLength": 1
+              },
+              "prefix": {
+                "type": "string",
+                "pattern": "^--[a-z-]+-$"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "reference": {
+          "type": "string",
+          "description": "The format reference, as `guide --reference` prints it."
+        }
+      }
+    },
+    "design_md": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "version",
+        "tokens",
+        "components",
+        "sections"
+      ],
+      "description": "The project's design document, DESIGN.md, as the tool read it: the same shape in the page config and in `project`'s output.",
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The document's path, from the project's top."
+        },
+        "version": {
+          "type": "string",
+          "description": "The format version the document names; `alpha` when it names none."
+        },
+        "tokens": {
+          "type": "array",
+          "description": "Each token the document places, in the order of its lines, then each colour role that joins a light and a dark member.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "name",
+              "line",
+              "light",
+              "dark"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The token's path in the document, such as `colors.light.surface`; a role's is `colors.<path>`."
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^--[A-Za-z0-9-]+$",
+                "description": "The CSS custom property a design reads."
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "The token's line in the document."
+              },
+              "light": {
+                "type": "string",
+                "description": "The value in the light theme, every reference followed; \"\" when it has none. `open-prototype project` gives the value the page draws after the token files, and \"\" where a token file sets it in `@media` or under a selector other than the root's."
+              },
+              "dark": {
+                "type": "string",
+                "description": "The value in the dark theme, every reference followed; \"\" when it has none. `open-prototype project` gives the value the page draws after the token files, and \"\" where a token file sets it in `@media` or under a selector other than the root's."
+              }
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "description": "Each key of the document's `components`, with its line.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "line"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "sections": {
+          "type": "array",
+          "description": "Each `##` heading of the document, with its line.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "heading",
+              "line"
+            ],
+            "properties": {
+              "heading": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "exists": {
+          "type": "boolean",
+          "description": "`project` only: whether the file is there. The page config never holds it."
+        }
+      }
+    }
+  }
+}

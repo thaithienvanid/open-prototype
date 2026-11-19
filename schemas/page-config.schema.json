@@ -1,0 +1,510 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:open-prototype:page-config",
+  "title": "Page config",
+  "description": "The one settings block a built page carries for the viewer, in `<script type=\"application/json\" id=\"page-config\">`, right after the fixtures block. The tool writes it; the viewer reads it, the fixtures block, and the design in `<template id=\"product\">`, and nothing else of the tool's. A screen's states and their order are not here: the viewer reads them from the design itself, in the order it draws them. The part \"The page contract\" in section 6 of `docs/tech-spec.md` describes every block and slot of the page.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "design_id",
+    "design",
+    "product",
+    "work_item",
+    "platforms",
+    "themes",
+    "html",
+    "body",
+    "tokens",
+    "design_md",
+    "frames",
+    "flows",
+    "rounds",
+    "next_round",
+    "rounds_path",
+    "findings",
+    "limits"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "description": "The version of this block's shape."
+    },
+    "design_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16,64}$",
+      "description": "The id the viewer keeps this design's comments by in the browser: a hash of the project folder's own name and the design's path inside the project, so it is the same whether the page opens as a file or from the server, and on every machine that holds the project under that folder name."
+    },
+    "design": {
+      "type": "string",
+      "description": "The design's path inside the project, with `/` between its parts, such as `design/app.html`."
+    },
+    "product": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "description": "The product's name, one line, for the viewer's header."
+    },
+    "work_item": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[^\\s\\x00-\\x1f\\x7f]*$",
+      "description": "The work item the design names, or \"\" for none: any text of 1 to 64 characters with no space or control character."
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "web",
+          "ios",
+          "android",
+          "desktop"
+        ]
+      },
+      "description": "The platforms the design declares, in its order. Each is a place a view must be seen in. Default when the design declares none: web."
+    },
+    "themes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "light",
+          "dark"
+        ]
+      },
+      "description": "The product themes the design declares, in its order. Default when the design declares none: light."
+    },
+    "html": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The design's own <html> attributes, `lang` and `dir` among them, less every name with the prefix data-proto-: a frame's root takes them."
+    },
+    "body": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The design's own <body> attributes, less every name with the prefix data-proto-: a frame's body takes them."
+    },
+    "tokens": {
+      "type": "array",
+      "description": "The tokens the build places before the design's styles, in order, each with its text, for the System view: the design document's generated block first, when the project has one, then each token file. The page carries the same text in a <style data-proto-tokens> before the design.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "css"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "The file's path inside the project."
+          },
+          "css": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "design_md": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/design_md"
+        }
+      ],
+      "description": "The project's design document, or null when the project has none. Its CSS rides in `tokens` as the first entry."
+    },
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The device frames, in the order the frame menu lists them. The first frame of each platform in this list is that platform's default frame.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "platform",
+          "width",
+          "height",
+          "safe_area"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "platform": {
+            "enum": [
+              "web",
+              "ios",
+              "android",
+              "desktop"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "safe_area": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "top",
+              "bottom"
+            ],
+            "properties": {
+              "top": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "bottom": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "description": "The system bars the frame draws over the design, in CSS px; 0 and 0 for none."
+          }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "description": "The flows the design includes, in its order; empty for a design with none.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "description": "The earlier rounds' comments, oldest first, each comment whole. What could not be read is a `rounds.*` finding in `findings`.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "round",
+          "items"
+        ],
+        "properties": {
+          "round": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "screen",
+                "state",
+                "testid",
+                "index",
+                "comment",
+                "type",
+                "by",
+                "done",
+                "shown_theme"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^r[0-9]+-[0-9]+$",
+                  "description": "r<round>-<n>, where <round> is this round's number."
+                },
+                "screen": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "testid": {
+                  "type": "string",
+                  "description": "The element's test id, or \"\"."
+                },
+                "index": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Which of the visible elements that share the test id the comment names, counting from 0, as the round file gives it; 0 when the file names none."
+                },
+                "comment": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "description": "The reviewer's words, whole."
+                },
+                "type": {
+                  "enum": [
+                    "change",
+                    "remove",
+                    "add",
+                    "question"
+                  ]
+                },
+                "by": {
+                  "type": "string",
+                  "description": "Who wrote it, such as agent:<harness>/<model>, or \"\" for a person."
+                },
+                "done": {
+                  "type": "boolean",
+                  "description": "A later round's changes answer it."
+                },
+                "shown_theme": {
+                  "enum": [
+                    "light",
+                    "dark",
+                    ""
+                  ],
+                  "description": "The theme the reviewer saw, or \"\" when the file does not say."
+                },
+                "answered_by": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "round",
+                    "summary"
+                  ],
+                  "description": "The change that answers this comment, when one does: the first change of a later round's changes.json that names it. A comment no change answers has no such key.",
+                  "properties": {
+                    "round": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "The round of the change."
+                    },
+                    "summary": {
+                      "type": "string",
+                      "description": "The change's summary, whole: what changed, in a sentence."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "next_round": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "The round a review opens in when its link names none: one more than the highest round beside the design that has a comments file, readable or not, so a round left out of `rounds` still counts; 1 when there is none."
+    },
+    "rounds_path": {
+      "type": "string",
+      "description": "The folder that holds this design's rounds, inside the project, with `/` between its parts: `<design folder>/rounds/<design name>`, where the design name is the file's stem."
+    },
+    "findings": {
+      "type": "array",
+      "description": "The design's findings, as `check --json` gives them, for the page's banner, rounds' problems included as `rounds.*` findings.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule",
+          "level",
+          "file",
+          "line",
+          "message"
+        ],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "pattern": "^[a-z]+\\.[a-z0-9-]+$"
+          },
+          "level": {
+            "enum": [
+              "problem",
+              "note"
+            ]
+          },
+          "file": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The file the finding names, from the project's top; null when it has no place."
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comment_characters",
+        "comments_in_a_round",
+        "rounds_shown",
+        "characters_in_all_rounds"
+      ],
+      "description": "The round files' limits, from the comments schema. The viewer counts against them and disables Save over a limit; the save refuses over them; the build leaves a round out over the page limits and says so in a `rounds.limit` finding. Nothing is cut in silence.",
+      "properties": {
+        "comment_characters": {
+          "const": 2000
+        },
+        "comments_in_a_round": {
+          "const": 200
+        },
+        "rounds_shown": {
+          "const": 20
+        },
+        "characters_in_all_rounds": {
+          "const": 200000
+        }
+      }
+    }
+  },
+  "$defs": {
+    "design_md": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "version",
+        "tokens",
+        "components",
+        "sections"
+      ],
+      "description": "The project's design document, DESIGN.md, as the tool read it: the same shape in the page config and in `project`'s output.",
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The document's path, from the project's top."
+        },
+        "version": {
+          "type": "string",
+          "description": "The format version the document names; `alpha` when it names none."
+        },
+        "tokens": {
+          "type": "array",
+          "description": "Each token the document places, in the order of its lines, then each colour role that joins a light and a dark member.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "name",
+              "line",
+              "light",
+              "dark"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The token's path in the document, such as `colors.light.surface`; a role's is `colors.<path>`."
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^--[A-Za-z0-9-]+$",
+                "description": "The CSS custom property a design reads."
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "The token's line in the document."
+              },
+              "light": {
+                "type": "string",
+                "description": "The value in the light theme, every reference followed; \"\" when it has none. `open-prototype project` gives the value the page draws after the token files, and \"\" where a token file sets it in `@media` or under a selector other than the root's."
+              },
+              "dark": {
+                "type": "string",
+                "description": "The value in the dark theme, every reference followed; \"\" when it has none. `open-prototype project` gives the value the page draws after the token files, and \"\" where a token file sets it in `@media` or under a selector other than the root's."
+              }
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "description": "Each key of the document's `components`, with its line.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "line"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "sections": {
+          "type": "array",
+          "description": "Each `##` heading of the document, with its line.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "heading",
+              "line"
+            ],
+            "properties": {
+              "heading": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "exists": {
+          "type": "boolean",
+          "description": "`project` only: whether the file is there. The page config never holds it."
+        }
+      }
+    }
+  }
+}
