@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platforms" content="web">
+<meta name="themes" content="light dark">
+<meta name="work-item" content="KIT-1">
+<title>Baseplate — SaaS Starter Kit</title>
+<style data-proto-tokens>
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --radius-sm: 6px;
+  --radius-control: 8px;
+  --radius-surface: 12px;
+  --radius-pill: 999px;
+  --size-control: 44px;
+  --size-control-sm: 36px;
+  --size-sidebar: 244px;
+  --size-content-max: 62rem;
+  --font-sans: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-size-caption: 0.8125rem;
+  --font-size-small: 0.875rem;
+  --font-size-body: 0.96875rem;
+  --font-size-heading: 1.1875rem;
+  --font-size-title: 1.625rem;
+  --duration-fast: 140ms;
+  --duration-shimmer: 1400ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-shimmer: 0ms;
+  }
+}
+:root,
+:root[data-proto-theme="light"] {
+  --color-surface: #f7f8fa;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #eef1f5;
+  --color-text: #181c23;
+  --color-text-muted: #525b6b;
+  --color-border: #dfe3ea;
+  --color-border-strong: #8d99ac;
+  --color-accent: #2558d4;
+  --color-accent-strong: #1c45ab;
+  --color-accent-subtle: #e8effd;
+  --color-on-accent: #ffffff;
+  --color-success: #0f6b47;
+  --color-success-subtle: #e3f5ed;
+  --color-warning: #8a4b00;
+  --color-warning-subtle: #fef3db;
+  --color-danger: #b82920;
+  --color-danger-subtle: #fdeceb;
+  --color-focus: #2558d4;
+  color-scheme: light;
+}
+:root[data-proto-theme="dark"] {
+  --color-surface: #101216;
+  --color-surface-raised: #171a20;
+  --color-surface-sunken: #20242c;
+  --color-text: #e6e9ef;
+  --color-text-muted: #a3adbd;
+  --color-border: #282d37;
+  --color-border-strong: #667085;
+  --color-accent: #7ea6ff;
+  --color-accent-strong: #a3c0ff;
+  --color-accent-subtle: #182542;
+  --color-on-accent: #0c1730;
+  --color-success: #6ee7b7;
+  --color-success-subtle: #122e24;
+  --color-warning: #fcd34d;
+  --color-warning-subtle: #2e240c;
+  --color-danger: #fca5a5;
+  --color-danger-subtle: #351817;
+  --color-focus: #7ea6ff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-proto-theme]) {
+    --color-surface: #101216;
+    --color-surface-raised: #171a20;
+    --color-surface-sunken: #20242c;
+    --color-text: #e6e9ef;
+    --color-text-muted: #a3adbd;
+    --color-border: #282d37;
+    --color-border-strong: #667085;
+    --color-accent: #7ea6ff;
+    --color-accent-strong: #a3c0ff;
+    --color-accent-subtle: #182542;
+    --color-on-accent: #0c1730;
+    --color-success: #6ee7b7;
+    --color-success-subtle: #122e24;
+    --color-warning: #fcd34d;
+    --color-warning-subtle: #2e240c;
+    --color-danger: #fca5a5;
+    --color-danger-subtle: #351817;
+    --color-focus: #7ea6ff;
+    color-scheme: dark;
+  }
+}
+</style>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-body);
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+    background: var(--color-surface);
+    color: var(--color-text);
+    container: frame / inline-size;
+    -webkit-font-smoothing: antialiased;
+  }
+  [hidden] { display: none !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  button, input, select { font: inherit; color: inherit; }
+  .mono { font-family: var(--font-mono); font-size: var(--font-size-caption); color: var(--color-text-muted); }
+  .muted { color: var(--color-text-muted); margin: 0; }
+
+  /* Flat SaaS shell */
+  .shell {
+    display: grid;
+    min-height: 100dvh;
+    grid-template-columns: var(--size-sidebar) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "side top" "side main";
+  }
+  .sidebar {
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-3);
+    background: var(--color-surface-raised);
+    border-inline-end: 1px solid var(--color-border);
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+  }
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .brand-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    display: grid;
+    place-items: center;
+    font-size: var(--font-size-caption);
+    font-weight: 700;
+  }
+  .org-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    font-size: var(--font-size-small);
+  }
+  .org-box strong { font-weight: 600; }
+  .org-box span { color: var(--color-text-muted); font-size: var(--font-size-caption); }
+
+  .side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .side-nav button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: var(--size-control);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    text-align: start;
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--easing-standard), color var(--duration-fast) var(--easing-standard);
+  }
+  .side-nav button:hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-text);
+  }
+  .side-nav button[aria-current="page"] {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+  .nav-divider {
+    margin: var(--space-2) 0;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Top workspace bar */
+  .topbar {
+    grid-area: top;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-surface-raised);
+    border-block-end: 1px solid var(--color-border);
+  }
+  .topbar h1 {
+    margin: 0;
+    font-size: var(--font-size-title);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--size-control-sm);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .back-btn:hover { background: var(--color-surface-sunken); }
+
+  main {
+    grid-area: main;
+    width: 100%;
+    max-width: var(--size-content-max);
+    padding: var(--space-5);
+  }
+  main:focus, [data-proto-slot="title"]:focus { outline: none; }
+  h2 { margin: 0; font-size: var(--font-size-heading); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  .section-heading { margin: var(--space-5) 0 var(--space-3); }
+
+  /* Responsive collapse for phone / narrow frames */
+  @container frame (max-width: 48rem) {
+    .shell {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas: "side" "top" "main";
+    }
+    .sidebar {
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--color-border);
+    }
+    .org-box, .nav-divider { display: none; }
+    .side-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-1);
+    }
+    .side-nav button {
+      width: auto;
+      min-height: var(--size-control);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-small);
+    }
+    .topbar { padding: var(--space-3); }
+    main { padding: var(--space-3); }
+  }
+
+  /* Controls */
+  .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--size-control);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-control);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--easing-standard), border-color var(--duration-fast) var(--easing-standard);
+  }
+  .btn-sm { min-height: var(--size-control); padding: 0 var(--space-3); }
+  .btn-full { width: 100%; }
+  .btn-primary { border: 1px solid var(--color-accent); background: var(--color-accent); color: var(--color-on-accent); }
+  .btn-primary:hover { background: var(--color-accent-strong); border-color: var(--color-accent-strong); }
+  .btn-secondary { border: 1px solid var(--color-border-strong); background: var(--color-surface-raised); color: var(--color-text); }
+  .btn-secondary:hover { background: var(--color-surface-sunken); }
+  .btn-danger { border: 1px solid var(--color-danger); background: var(--color-danger); color: var(--color-on-accent); }
+
+  /* Forms */
+  .field-group { display: grid; gap: var(--space-3); }
+  .field { display: grid; gap: var(--space-1); font-size: var(--font-size-small); font-weight: 500; }
+  input, select {
+    width: 100%;
+    min-height: var(--size-control);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+  }
+  .search-field { flex: 1 1 14rem; max-width: 24rem; }
+
+  /* Flat blocks: stats, toolbars, cards, tables, notices, plans */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: var(--space-3);
+    margin-block-end: var(--space-4);
+  }
+  .stat-card {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+  }
+  .stat-label { font-size: var(--font-size-caption); color: var(--color-text-muted); font-weight: 500; }
+  .stat-value { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  .stat-hint { font-size: var(--font-size-caption); color: var(--color-text-muted); }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-block-end: var(--space-3);
+  }
+
+  .stack { display: grid; gap: var(--space-2); }
+  .row-card, .panel-card, .auth-card {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+  }
+  .auth-card { max-width: 28rem; }
+  .auth-head { display: grid; gap: var(--space-2); justify-items: start; }
+  .row-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+  }
+  .row-main { display: grid; gap: 2px; min-width: 0; }
+  .member-cell { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+  .avatar { width: 36px; height: 36px; border-radius: var(--radius-pill); flex: none; }
+  .row-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+  .row-meta { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-small); }
+
+  .table-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+    overflow: hidden;
+  }
+  .table-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+  .table-row + .table-row { border-block-start: 1px solid var(--color-border); }
+  @container frame (max-width: 34rem) {
+    .table-row { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+    .row-card { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-caption);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill-accent { background: var(--color-accent-subtle); color: var(--color-accent); }
+
+  .notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    margin-block-end: var(--space-3);
+  }
+  .notice-copy { display: grid; gap: 2px; max-width: 54ch; }
+  .notice-copy p { margin: 0; font-size: var(--font-size-small); }
+  .notice-info { background: var(--color-accent-subtle); color: var(--color-text); border-color: var(--color-border); }
+  .notice-success { background: var(--color-success-subtle); color: var(--color-success); border-color: var(--color-border); }
+  .notice-warning { background: var(--color-warning-subtle); color: var(--color-warning); border-color: var(--color-border); }
+  .notice-danger { background: var(--color-danger-subtle); color: var(--color-danger); border-color: var(--color-border); }
+
+  .empty-state {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+    max-width: 38rem;
+  }
+  .empty-state p { margin: 0; color: var(--color-text-muted); max-width: 48ch; }
+  .empty-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-control);
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    display: grid;
+    place-items: center;
+  }
+  .empty-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+  }
+  .facts dt { font-size: var(--font-size-caption); color: var(--color-text-muted); font-weight: 600; }
+  .facts dd { margin: 2px 0 0; font-weight: 500; }
+  .danger-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-danger-subtle);
+    color: var(--color-danger);
+  }
+  .danger-box p { margin: 0; font-size: var(--font-size-small); }
+
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--space-3);
+  }
+  .plan-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+  }
+  .plan-featured { border-color: var(--color-accent); background: var(--color-surface-raised); }
+  .plan-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .plan-price { margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .plan-summary { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-small); }
+  .plan-list { margin: 0 0 auto; padding-inline-start: 1.15rem; display: grid; gap: var(--space-1); font-size: var(--font-size-small); color: var(--color-text-muted); }
+
+  .skeleton {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-surface);
+    background: var(--color-surface-raised);
+  }
+  .skeleton span {
+    display: block;
+    height: 14px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, var(--color-surface-sunken) 40%, var(--color-border) 50%, var(--color-surface-sunken) 60%) 0 0 / 300% 100%;
+    animation: shimmer var(--duration-shimmer) ease-in-out 3;
+  }
+  .skeleton span:first-child { width: 42%; height: 18px; }
+  .skeleton span:nth-child(2) { width: 68%; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand-row">
+      <span class="brand-mark"><span class="brand-icon" aria-hidden="true">B</span><span data-proto-text="product"></span></span>
+      <span class="pill" data-proto-text="org.plan"></span>
+    </div>
+    <div class="org-box" data-proto-component="org-switcher">
+      <strong data-proto-text="org.name"></strong>
+      <span data-proto-text="org.role"></span>
+    </div>
+    <nav class="side-nav" aria-label="Workspace">
+      <button type="button" data-proto-go="projects:list" data-proto-component="nav-item" data-testid="nav-projects">Projects</button>
+      <button type="button" data-proto-go="billing:plans" data-proto-component="nav-item" data-testid="nav-billing">Billing and plans</button>
+      <button type="button" data-proto-go="team:members" data-proto-component="nav-item" data-testid="nav-team">Team and roles</button>
+      <button type="button" data-proto-go="team:audit" data-proto-component="nav-item" data-testid="nav-audit">Audit log</button>
+      <button type="button" data-proto-go="developers:api" data-proto-component="nav-item" data-testid="nav-developers">Developers</button>
+      <hr class="nav-divider">
+      <button type="button" data-proto-go="backoffice:orgs" data-proto-component="nav-item" data-testid="nav-backoffice">Staff back office</button>
+      <button type="button" data-proto-go="auth:signin" data-proto-component="nav-item" data-testid="nav-signin">Sign in</button>
+    </nav>
+  </aside>
+  <header class="topbar" data-proto-component="app-bar">
+    <button type="button" class="back-btn" data-proto-back data-testid="app-back" hidden><span data-proto-slot="back-label">Back</span></button>
+    <h1 data-proto-slot="title"></h1>
+  </header>
+  <main>
+    <div data-proto-flow="projects" data-proto-title="Projects"></div>
+    <div data-proto-flow="billing" data-proto-title="Billing"></div>
+    <div data-proto-flow="team" data-proto-title="Team and audit"></div>
+    <div data-proto-flow="developers" data-proto-title="Developers"></div>
+    <div data-proto-flow="backoffice" data-proto-title="Back office"></div>
+    <div data-proto-flow="auth" data-proto-title="Sign in"></div>
+  </main>
+</div>
+<script type="application/json" data-proto-fixtures>
+{
+  "product": "Baseplate",
+  "org": {
+    "name": "Northstar Labs",
+    "role": "Owner · PostgreSQL RLS isolated",
+    "plan": "Free"
+  },
+  "metrics": {
+    "projects": "3",
+    "projects_hint": "3 of 3 on Free plan",
+    "seats": "4 / 5",
+    "seats_hint": "1 seat remaining",
+    "requests": "14,280",
+    "requests_hint": "99.98% delivered · 0 tenant leaks"
+  },
+  "auth": {
+    "local_badge": "Local-first · no cloud account",
+    "signin_heading": "Sign in to Baseplate",
+    "signin_sub": "Self-hosted Better Auth default, or switch to Clerk with one setting.",
+    "tfa_heading": "Enter your verification code",
+    "tfa_sub": "Two-factor authentication protects every organization and staff session.",
+    "error_title": "We could not verify those credentials",
+    "error_body": "Check your email and password, or reset your password in the local inbox.",
+    "org_heading": "Create your organization",
+    "org_sub": "Every row, file, and background job is scoped to one organization by default.",
+    "created_title": "Northstar Labs is ready",
+    "created_body": "An invite email for devon@northstar.dev was delivered to your local inbox."
+  },
+  "projects": {
+    "loading_status": "Loading organization projects…",
+    "empty_title": "No projects in Northstar Labs yet",
+    "empty_body": "Projects is the kit's sample feature: create one to verify tenant isolation, file uploads, and background exports.",
+    "error_title": "Could not load projects",
+    "error_body": "The API did not respond in time. Your organization data is intact.",
+    "offline_title": "You are offline",
+    "offline_body": "Showing the last cached projects for Northstar Labs. Changes resume when you reconnect.",
+    "delete_warning": "Deleting this project removes its stored S3 files and records an immutable audit event.",
+    "exporting_title": "Background CSV export queued",
+    "exporting_body": "The database worker is building your export. You will receive a signed download link by email.",
+    "exported_title": "Export ready to download",
+    "exported_body": "projects-northstar-2026-11-20.csv (48 KB) was delivered to the local inbox.",
+    "items": [
+      {
+        "name": "Core billing adapter",
+        "status": "Active",
+        "meta": "Updated 12 minutes ago · 14 files · Owner: Maya Lin",
+        "summary": "Unified billing interface proven against the local checkout simulator, Stripe sandbox, and Paddle sandbox.",
+        "isolation": "Enforced by PostgreSQL RLS",
+        "files": "14 files (3.2 MB in local S3)",
+        "last_export": "Today, 09:40 UTC"
+      },
+      {
+        "name": "Webhook delivery pipeline",
+        "status": "Active",
+        "meta": "Updated 2 hours ago · 6 files · Owner: Devon Brooks",
+        "summary": "Signed outbound webhooks with exponential backoff retries and per-organization delivery logs.",
+        "isolation": "Enforced by PostgreSQL RLS",
+        "files": "6 files (840 KB in local S3)",
+        "last_export": "Yesterday, 18:15 UTC"
+      },
+      {
+        "name": "Onboarding email templates",
+        "status": "Draft",
+        "meta": "Updated yesterday · 9 files · Owner: Priya Nair",
+        "summary": "Verification, invite, and export-ready templates previewed in the local browser inbox.",
+        "isolation": "Enforced by PostgreSQL RLS",
+        "files": "9 files (1.1 MB in local S3)",
+        "last_export": "Never exported"
+      }
+    ]
+  },
+  "billing": {
+    "current_plan": "Free",
+    "provider_hint": "Local checkout simulator · Stripe & Paddle ready",
+    "seats_used": "4 of 5",
+    "seats_hint": "Seats follow active organization members",
+    "next_invoice": "$0.00",
+    "invoice_hint": "Upgrade only when you need more projects or seats",
+    "free_summary": "Everything a product needs for its first paying customers, and all security.",
+    "free_a": "Up to 3 projects and 5 seats",
+    "free_b": "PostgreSQL tenant isolation & 2FA",
+    "free_c": "Audit log, API keys & webhooks",
+    "pro_summary": "Built for growing teams shipping production workloads.",
+    "pro_a": "Unlimited projects and 25 seats",
+    "pro_b": "Priority background job queues",
+    "pro_c": "365-day audit retention & exports",
+    "team_summary": "For agencies and multi-product engineering organizations.",
+    "team_a": "Unlimited seats and organizations",
+    "team_b": "Dedicated webhook retry workers",
+    "team_c": "Custom retention and support SLA",
+    "limit_title": "Project limit reached on the Free plan",
+    "limit_body": "Northstar Labs has 3 of 3 active projects. Upgrade to Pro to create unlimited projects without changing a line of code.",
+    "upgraded_title": "Northstar Labs is now on Pro",
+    "upgraded_body": "Your seat and project limits updated immediately via the billing webhook, and the change is in the audit log."
+  },
+  "team": {
+    "summary": "Roles (Owner, Admin, Billing, Member) are checked by one permission table across the app, API, and tests.",
+    "invite_note": "Invites expire in 7 days and are sent through the configured email adapter.",
+    "empty_title": "You are the only member",
+    "empty_body": "An organization of one works out of the box. Invite teammates when you are ready to collaborate.",
+    "members": [
+      { "name": "Maya Lin", "email": "maya@northstar.dev", "role": "Owner", "joined": "Joined Oct 2026", "avatar": "avatars/maya.svg" },
+      { "name": "Devon Brooks", "email": "devon@northstar.dev", "role": "Admin", "joined": "Joined Oct 2026", "avatar": "avatars/devon.svg" },
+      { "name": "Priya Nair", "email": "priya@northstar.dev", "role": "Billing", "joined": "Joined Nov 2026", "avatar": "avatars/priya.svg" },
+      { "name": "Tomas Novak", "email": "tomas@northstar.dev", "role": "Member", "joined": "Joined Nov 2026", "avatar": "avatars/tomas.svg" }
+    ]
+  },
+  "audit": {
+    "retention": "Immutable per-organization trail · 90-day retention on Free · exportable by Admins",
+    "empty_title": "No audit events yet",
+    "empty_body": "Sign-ins, role changes, billing updates, and staff support actions are recorded here automatically.",
+    "events": [
+      { "action": "billing.plan_viewed", "actor": "Priya Nair (Billing)", "scope": "Organization", "when": "4 min ago" },
+      { "action": "apikey.created", "actor": "Devon Brooks (Admin)", "scope": "Developer", "when": "38 min ago" },
+      { "action": "member.role_updated", "actor": "Maya Lin (Owner)", "scope": "Access", "when": "2 hours ago" },
+      { "action": "project.export_completed", "actor": "Background worker", "scope": "Jobs", "when": "Yesterday" }
+    ]
+  },
+  "dev": {
+    "summary": "Scoped API keys and signed webhooks with automatic retries. Zero external delivery service required.",
+    "created_title": "API key created — copy it now",
+    "created_body": "bp_live_9f8a2c4e1b7d... (projects:read, projects:write). For your security, the full secret is shown once.",
+    "empty_title": "No API keys yet",
+    "empty_body": "Create a scoped API key to integrate your organization with CI, scripts, or external services.",
+    "keys": [
+      { "name": "CI deployment script", "prefix": "bp_live_4c91…8a2f", "scope": "projects:read", "last_used": "Used 6 min ago" },
+      { "name": "Nightly export sync", "prefix": "bp_live_7e03…19d4", "scope": "exports:write", "last_used": "Used yesterday" }
+    ],
+    "webhooks": [
+      { "event": "project.export.completed", "endpoint": "https://hooks.northstar.dev/exports", "status": "200 OK" },
+      { "event": "billing.subscription.updated", "endpoint": "https://hooks.northstar.dev/billing", "status": "502 Retrying" }
+    ]
+  },
+  "staff": {
+    "banner_title": "Staff back office — separate from organization Admin",
+    "banner_body": "Granted by CLI command only, protected by mandatory 2FA, and every lookup or action is recorded in an immutable audit log.",
+    "suspended_title": "Organization suspended",
+    "suspended_body": "Acme Retail has been suspended and an immutable staff audit record was written. Restore access at any time.",
+    "tfa_heading": "Confirm your staff session",
+    "tfa_body": "Staff access reaches across organizations and always requires a fresh two-factor check.",
+    "orgs": [
+      { "name": "Northstar Labs", "meta": "Free plan · 4 seats · 3 projects", "status": "Active" },
+      { "name": "Acme Retail", "meta": "Pro plan · 18 seats · 12 projects", "status": "Active" },
+      { "name": "Kestrel Studio", "meta": "Team plan · 31 seats · 29 projects", "status": "Past due" }
+    ]
+  }
+}
+</script>
+</body>
+</html>

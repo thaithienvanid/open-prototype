@@ -1,0 +1,9 @@
+{
+  "inbox.title": "Inbox",
+  "inbox.empty": "No conversation waits for you. New ones arrive here.",
+  "inbox.error": "The inbox did not load. Your conversations are safe.",
+  "inbox.retry": "Try again",
+  "conversation.reply": "Reply",
+  "conversation.close": "Close conversation",
+  "conversation.closed": "Closed. The customer gets your last reply."
+}

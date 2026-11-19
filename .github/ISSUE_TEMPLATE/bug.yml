@@ -1,0 +1,31 @@
+name: Bug
+description: The tool did something wrong. Report a vulnerability privately instead, as SECURITY.md says.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version and system
+      description: What `open-prototype --version` prints, and your system, such as macOS 15 on arm64.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: The command and what it printed
+      description: The whole command line, its output, and its exit code.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: The smallest design that shows it
+      description: Optional. Paste a short design file, or the part of it that matters.
+      render: html

@@ -1,0 +1,75 @@
+<section data-proto-screen="list" data-proto-title="Projects" data-proto-initial="populated">
+  <div data-proto-state="populated" data-testid="projects-populated">
+    <div class="stat-grid">
+      <div data-proto-use="stat-card" data-proto-arg-label="Active projects" data-proto-arg-value-key="metrics.projects" data-proto-arg-hint-key="metrics.projects_hint"></div>
+      <div data-proto-use="stat-card" data-proto-arg-label="Seats in use" data-proto-arg-value-key="metrics.seats" data-proto-arg-hint-key="metrics.seats_hint"></div>
+      <div data-proto-use="stat-card" data-proto-arg-label="API requests (24h)" data-proto-arg-value-key="metrics.requests" data-proto-arg-hint-key="metrics.requests_hint"></div>
+    </div>
+    <div class="toolbar">
+      <label class="search-field"><span class="sr-only">Search projects</span><input type="search" value="Core" placeholder="Search projects" data-testid="projects-search"></label>
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="projects:list/loading" data-testid="projects-refresh">Refresh</button>
+        <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="billing:plans/limit-reached" data-testid="projects-new">New project</button>
+      </div>
+    </div>
+    <div class="stack" data-proto-list="projects.items" data-proto-limit="3"><template data-proto-item><div data-proto-use="project-row"></div></template></div>
+  </div>
+  <div data-proto-state="loading" data-testid="projects-loading" aria-busy="true">
+    <p class="sr-only" role="status" data-proto-text="projects.loading_status"></p>
+    <div class="stack" aria-hidden="true">
+      <div class="skeleton" data-proto-component="skeleton"><span></span><span></span></div>
+      <div class="skeleton" data-proto-component="skeleton"><span></span><span></span></div>
+      <div class="skeleton" data-proto-component="skeleton"><span></span><span></span></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="projects:list/populated" data-testid="projects-loading-done">Show projects</button>
+    </div>
+  </div>
+  <div data-proto-state="empty" data-testid="projects-empty">
+    <div data-proto-use="empty-state" data-proto-arg-title-key="projects.empty_title" data-proto-arg-body-key="projects.empty_body" data-proto-arg-go="projects:list/populated" data-proto-arg-testid="projects-create-first" data-proto-arg-action="Create first project"></div>
+  </div>
+  <div data-proto-state="error" data-testid="projects-error">
+    <div data-proto-use="notice" data-proto-arg-tone="danger" data-proto-arg-role="alert" data-proto-arg-title-key="projects.error_title" data-proto-arg-body-key="projects.error_body" data-proto-arg-go="projects:list/loading" data-proto-arg-testid="projects-retry" data-proto-arg-action="Retry"></div>
+  </div>
+  <div data-proto-state="offline" data-testid="projects-offline">
+    <div data-proto-use="notice" data-proto-arg-tone="warning" data-proto-arg-role="status" data-proto-arg-title-key="projects.offline_title" data-proto-arg-body-key="projects.offline_body" data-proto-arg-go="projects:list/populated" data-proto-arg-testid="projects-reconnect" data-proto-arg-action="Reconnect"></div>
+    <div class="stack" data-proto-list="projects.items" data-proto-limit="3"><template data-proto-item><div data-proto-use="project-row"></div></template></div>
+  </div>
+</section>
+
+<section data-proto-screen="detail" data-proto-title="Project details" data-proto-parent="list" data-proto-initial="ready" data-proto-source="projects.items">
+  <div data-proto-state="ready" data-testid="project-detail-ready">
+    <div class="panel-card">
+      <div class="row-title-line">
+        <h2 data-proto-field="name"></h2>
+        <span class="pill" data-proto-component="status-pill" data-proto-field="status"></span>
+      </div>
+      <p class="muted" data-proto-field="summary"></p>
+      <dl class="facts" data-proto-component="fact-list">
+        <div><dt>Tenant isolation</dt><dd data-proto-field="isolation"></dd></div>
+        <div><dt>Files stored</dt><dd data-proto-field="files"></dd></div>
+        <div><dt>Last export</dt><dd data-proto-field="last_export"></dd></div>
+      </dl>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="projects:detail/exporting" data-testid="project-export">Start CSV export</button>
+        <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-toggle="danger-panel" aria-controls="danger-panel" aria-expanded="false" data-testid="project-danger-toggle">Danger zone</button>
+      </div>
+      <div id="danger-panel" class="danger-box" data-proto-panel="danger-panel" hidden>
+        <p data-proto-text="projects.delete_warning"></p>
+        <button type="button" class="btn btn-danger btn-sm" data-proto-component="button" data-proto-variant="danger" data-proto-go="projects:list/empty" data-testid="project-delete">Delete project</button>
+      </div>
+    </div>
+  </div>
+  <div data-proto-state="exporting" data-testid="project-detail-exporting" aria-busy="true">
+    <div class="panel-card">
+      <h2 data-proto-field="name"></h2>
+      <div data-proto-use="notice" data-proto-arg-tone="info" data-proto-arg-role="status" data-proto-arg-title-key="projects.exporting_title" data-proto-arg-body-key="projects.exporting_body" data-proto-arg-go="projects:detail/export-ready" data-proto-arg-testid="project-export-finish" data-proto-arg-action="Check status"></div>
+    </div>
+  </div>
+  <div data-proto-state="export-ready" data-testid="project-detail-export-ready">
+    <div class="panel-card">
+      <h2 data-proto-field="name"></h2>
+      <div data-proto-use="notice" data-proto-arg-tone="success" data-proto-arg-role="status" data-proto-arg-title-key="projects.exported_title" data-proto-arg-body-key="projects.exported_body" data-proto-arg-go="projects:detail/ready" data-proto-arg-testid="project-export-done" data-proto-arg-action="Done"></div>
+    </div>
+  </div>
+</section>

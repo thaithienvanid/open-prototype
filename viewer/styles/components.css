@@ -1,0 +1,130 @@
+/* The viewer's components: the parts its chrome is made of. Each reads the tokens and holds no value of its own. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scrollbar-gutter: stable; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: var(--text-body); line-height: var(--text-body--line-height); font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ol, ul, dl, dd, figure { margin: 0; }
+h1 { font-size: var(--text-display); line-height: var(--text-display--line-height); font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+h2, h3 { font-size: var(--text-title); line-height: var(--text-title--line-height); font-weight: var(--font-weight-semibold); }
+h4 { font-size: var(--text-body); font-weight: var(--font-weight-semibold); }
+p, li, dd, td { overflow-wrap: anywhere; }
+button, input, select, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+::selection { background: var(--accent); color: var(--foreground); }
+:focus-visible { outline: var(--focus-width) solid var(--ring); outline-offset: var(--focus-offset); box-shadow: 0 0 0 var(--focus-halo) var(--background); }
+.sr-only, .skip:not(:focus) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+svg.icon { width: var(--size-icon); height: var(--size-icon); flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.skip { position: absolute; z-index: var(--layer-skip); left: var(--spacing-2); top: var(--spacing-2); padding: var(--spacing-1_5) var(--spacing-3); border: var(--border-width-thin) solid var(--foreground); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); }
+.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--spacing-4); min-height: var(--size-bar); padding-inline: var(--spacing-3); border-bottom: var(--border-width-thin) solid var(--border); background: var(--background); }
+.topbar-end { display: flex; justify-content: flex-end; align-items: center; gap: var(--spacing-1_5); min-width: 0; }
+.tabs { display: flex; gap: var(--spacing-6); align-self: stretch; }
+.tabs > :is(a, button) { position: relative; display: inline-flex; align-items: center; min-height: var(--size-target); padding: 0 var(--spacing-1); border: 0; background: none; color: var(--muted-foreground); font-weight: var(--font-weight-medium); text-decoration: none; cursor: pointer; }
+.tabs > :is(a, button):hover { background: var(--accent); color: var(--foreground); }
+.tabs > [aria-current="page"], .tabs > [aria-selected="true"] { color: var(--foreground); }
+.tabs > [aria-current="page"]::after, .tabs > [aria-selected="true"]::after { content: ""; position: absolute; inset-inline: 0; bottom: calc(-1 * var(--border-width-thin)); height: var(--border-width-thick); background: var(--foreground); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-1_5); min-height: var(--size-control); min-width: var(--size-target); padding: 0 var(--spacing-3); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); text-decoration: none; white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+.btn:hover, .btn[aria-expanded="true"] { background: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); }
+.btn:disabled, .btn[aria-disabled="true"] { border-color: var(--border); background: var(--background); color: var(--muted-foreground); cursor: not-allowed; }
+.btn-primary, .btn-primary:hover { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: var(--font-weight-semibold); }
+/* Under the pointer a primary button keeps its fill and gains a line inside its edge, a mark and not a tint. */
+.btn-primary:hover:not(:disabled) { box-shadow: inset 0 0 0 var(--border-width-thick) var(--primary), inset 0 0 0 calc(var(--border-width-thick) + var(--border-width-thin)) var(--primary-foreground); }
+.btn-primary, .btn[aria-pressed] { transition: none; }
+.btn-quiet { border-color: transparent; background: none; color: var(--muted-foreground); }
+.btn-quiet:hover { color: var(--foreground); }
+/* A pressed quiet button keeps the on-fill text under the pointer, and gains the primary button's line inside its edge,
+   so pressed with hover reads as two states (rule K11 of the skill's review checklist). */
+.btn-quiet[aria-pressed="true"]:hover { color: var(--primary-foreground); box-shadow: inset 0 0 0 var(--border-width-thick) var(--primary), inset 0 0 0 calc(var(--border-width-thick) + var(--border-width-thin)) var(--primary-foreground); }
+/* A quiet button that does nothing has no edge and no fill, and a fainter, thinner icon, so it never looks more live than
+   the quiet button beside it. */
+.btn-quiet:disabled, .btn-quiet[aria-disabled="true"] { border-color: transparent; background: none; color: var(--input); }
+.btn-quiet:disabled svg.icon, .btn-quiet[aria-disabled="true"] svg.icon { stroke-width: 1.2; }
+/* An open panel's button keeps an edge, so it never looks like a button under the pointer. */
+.btn-quiet[aria-expanded="true"] { border-color: var(--input); color: var(--foreground); }
+.btn-icon { width: var(--size-control); padding: 0; }
+.btn-comment { border-color: var(--comment); color: var(--comment); font-weight: var(--font-weight-semibold); }
+.btn-comment[aria-pressed="true"] { background: var(--comment); border-color: var(--comment); color: var(--comment-foreground); }
+.btn-block { width: 100%; }
+:is(.btn-primary, .btn[aria-pressed="true"]) kbd { border-color: currentColor; background: transparent; color: inherit; }
+.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-md); background: var(--background); }
+.seg > button { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-1_5); flex: none; min-height: calc(var(--size-control) - 2 * var(--border-width-thin)); min-width: var(--size-target); padding: 0 var(--spacing-2); border: 0; background: none; color: var(--muted-foreground); cursor: pointer; }
+.seg > button + button { border-inline-start: var(--border-width-thin) solid var(--border); }
+.seg > button:first-child { border-start-start-radius: calc(var(--radius-md) - var(--border-width-thin)); border-end-start-radius: calc(var(--radius-md) - var(--border-width-thin)); }
+.seg > button:last-child { border-start-end-radius: calc(var(--radius-md) - var(--border-width-thin)); border-end-end-radius: calc(var(--radius-md) - var(--border-width-thin)); }
+.seg > button:hover { background: var(--accent); color: var(--foreground); }
+/* The inside ring: a member of a group, a row of a list, and a tab touch their neighbours, their group's edge, or the
+   window, so each draws its focus ring inside its own box, with a gap in the page color between the ring and a fill. A
+   select in a group shows focus the same way as the buttons beside it. */
+:is(.seg > button, .seg > .select > select, .tabs > :is(a, button), .option):focus-visible { outline-color: var(--ring); outline-offset: var(--focus-inside-offset); box-shadow: inset 0 0 0 var(--focus-inside-gap) var(--background); }
+/* After a pointer click a select in a group shows what the buttons beside it show then: no ring (rule K8 of the skill's review checklist). */
+:root[data-pv-input="pointer"] .seg > .select > select:focus-visible { outline-color: transparent; box-shadow: none; }
+.seg > button[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+/* A group draws one border and one radius. A select in it is a cell, and a group in it draws a divider only. */
+.seg > .select { min-width: 0; min-height: calc(var(--size-control) - 2 * var(--border-width-thin)); border: 0; border-radius: 0; background: none; }
+.seg > .select:has(> select:focus-visible) { box-shadow: none; }
+.seg > .select:first-child, .seg > .select:first-child > select { border-start-start-radius: calc(var(--radius-md) - var(--border-width-thin)); border-end-start-radius: calc(var(--radius-md) - var(--border-width-thin)); }
+.seg > .seg { flex: none; overflow: visible; border: 0; border-inline-start: var(--border-width-thin) solid var(--border); border-radius: 0; background: none; }
+.seg > .seg > button:first-child { border-radius: 0; }
+.seg > .seg:last-child > button:last-child { border-start-end-radius: calc(var(--radius-md) - var(--border-width-thin)); border-end-end-radius: calc(var(--radius-md) - var(--border-width-thin)); }
+a, .link { color: var(--link); text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent); text-decoration-thickness: from-font; text-underline-offset: 0.2em; }
+a:hover, .link:hover { text-decoration-color: currentColor; text-decoration-thickness: var(--border-width-thick); }
+/* A link stands beside other links, so its ring sits on its own edge and reaches no further than its width. */
+.link:focus-visible { outline-offset: 0; border-radius: var(--radius-sm); box-shadow: none; }
+.link { display: inline-flex; align-items: center; min-height: var(--size-target); padding: 0; border: 0; background: none; text-align: start; text-decoration-line: underline; text-decoration-thickness: auto; cursor: pointer; }
+.link-quiet { color: var(--muted-foreground); text-decoration-color: var(--input); }
+.link-quiet:hover { color: var(--foreground); }
+.link:disabled, .link:disabled:hover { color: var(--input); text-decoration-line: none; cursor: not-allowed; }
+.field { min-height: var(--size-control); padding: 0 var(--spacing-2); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); }
+.field { width: 100%; }
+.field[aria-invalid="true"] { border-color: var(--warn); box-shadow: inset 0 0 0 var(--border-width-thin) var(--warn); }
+/* A field's error: text under the field, which the field names as its description. */
+.field-error { display: flex; gap: var(--spacing-1_5); align-items: flex-start; color: var(--foreground); font-weight: var(--font-weight-medium); }
+.field-error > svg.icon { margin-top: 0.15em; color: var(--warn); }
+.field::placeholder { color: var(--muted-foreground); opacity: 1; }
+:is(.field):focus-visible { outline: none; border-color: var(--ring); box-shadow: inset 0 0 0 var(--border-width-thin) var(--ring), 0 0 0 var(--focus-field-halo) var(--ring-halo); }
+textarea.field { min-height: calc(3 * var(--size-control)); padding-block: var(--spacing-1); }
+/* A select: the native control in the field's shape, with the system's chevron. Alone it shows focus as a field does;
+   in a group it is a cell (see .seg). */
+.select { position: relative; display: inline-flex; align-items: center; max-width: 100%; min-height: var(--size-control); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-md); background: var(--background); }
+.select > select { appearance: none; align-self: stretch; width: 100%; min-width: 0; padding: 0 var(--spacing-6) 0 var(--spacing-2); border: 0; border-radius: inherit; background: transparent; color: var(--foreground); cursor: pointer; }
+.select > svg { position: absolute; pointer-events: none; }
+.select > .select-icon { left: var(--spacing-2); }
+.select > .select-icon ~ select { padding-inline-start: var(--spacing-8); }
+.select > .select-chevron { right: var(--spacing-2); color: var(--muted-foreground); }
+.select:has(> select:focus-visible) { border-color: var(--ring); box-shadow: inset 0 0 0 var(--border-width-thin) var(--ring), 0 0 0 var(--focus-field-halo) var(--ring-halo); }
+.select > select:focus-visible { outline: var(--focus-width) solid transparent; outline-offset: var(--focus-inside-offset); box-shadow: none; }
+.switch-state { min-width: var(--size-switch); padding: 0 var(--spacing-1_5); border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-full); color: var(--muted-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-semibold); text-align: center; }
+kbd { display: inline-block; min-width: var(--size-key); padding: 0 var(--spacing-1); border: var(--border-width-thin) solid var(--input); border-bottom-width: var(--border-width-thick); border-radius: var(--radius-sm); background: var(--background); color: var(--muted-foreground); font-family: var(--font-sans); font-size: var(--text-meta); font-weight: var(--font-weight-medium); line-height: var(--text-meta--line-height); text-align: center; }
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--size-icon) + var(--spacing-0_5)); padding: 0 var(--spacing-1); border-radius: var(--radius-full); background: var(--primary); color: var(--primary-foreground); font-size: var(--text-meta); font-weight: var(--font-weight-semibold); line-height: var(--text-meta--line-height); }
+.badge-comment { background: var(--comment); color: var(--comment-foreground); }
+.callout { display: flex; gap: var(--spacing-2); align-items: flex-start; padding: var(--spacing-2) var(--spacing-4); border-bottom: var(--border-width-thin) solid var(--border); background: var(--muted); }
+.callout > svg.icon { margin-top: 0.15em; }
+.callout-notice { background: var(--warn-subtle); border-bottom-color: var(--warn); }
+.callout-notice > svg.icon { color: var(--warn); }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--spacing-2) var(--spacing-4); }
+.facts dt { color: var(--muted-foreground); }
+@media (width < 40rem) { .facts { grid-template-columns: minmax(0, 1fr); gap: 0; } .facts dd { margin-bottom: var(--spacing-2); } }
+code, pre { font-family: var(--font-mono); font-size: var(--text-meta); }
+code { overflow-wrap: anywhere; }
+pre { margin: 0; padding: var(--spacing-2) var(--spacing-3); border: var(--border-width-thin) solid var(--border); border-radius: var(--radius-md); background: var(--muted); overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.option { display: flex; align-items: center; gap: var(--spacing-2); width: 100%; min-height: var(--size-control); padding: 0 var(--spacing-2); border: 0; border-radius: var(--radius-md); background: none; text-align: start; cursor: pointer; }
+.option:hover { background: var(--accent); }
+.option[aria-current="true"], .option[aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); font-weight: var(--font-weight-semibold); }
+.meter { display: block; height: var(--spacing-1_5); border-radius: var(--radius-full); background: var(--border); overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--primary); }
+.toast { position: fixed; z-index: var(--layer-toast); inset-inline: 0; bottom: var(--spacing-4); width: max-content; max-width: min(var(--container-dialog), calc(100vw - 2 * var(--spacing-4))); margin-inline: auto; padding: var(--spacing-2) var(--spacing-3); border: var(--border-width-thin) solid var(--primary); border-radius: var(--radius-md); background: var(--primary); color: var(--primary-foreground); font-weight: var(--font-weight-semibold); text-align: center; box-shadow: var(--shadow-raised); }
+.toast:empty { display: none; }
+.dialog { width: min(var(--container-dialog), calc(100vw - 2 * var(--spacing-4))); padding: 0; border: var(--border-width-thin) solid var(--input); border-radius: var(--radius-lg); background: var(--popover); color: var(--popover-foreground); box-shadow: var(--shadow-raised); }
+.dialog::backdrop { background: var(--scrim); }
+.dialog-head { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: var(--spacing-3) var(--spacing-4); border-bottom: var(--border-width-thin) solid var(--border); }
+.dialog-head h2 { font-size: var(--text-title); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation: none !important; }
+}
+@media (forced-colors: active) {
+  :is(.btn[aria-pressed="true"], .seg > button[aria-pressed="true"], .option[aria-current="true"], .option[aria-selected="true"], .btn-primary, .badge) { forced-color-adjust: none; background: SelectedItem; color: SelectedItemText; border-color: SelectedItem; }
+  .tabs > [aria-current="page"]::after, .tabs > [aria-selected="true"]::after { forced-color-adjust: none; background: Highlight; }
+  .meter { border: var(--border-width-thin) solid CanvasText; }
+  .meter > span { background: Highlight; forced-color-adjust: none; }
+  :focus-visible { outline-color: Highlight; }
+  :is(.field):focus-visible { outline: var(--focus-width) solid transparent; }
+}

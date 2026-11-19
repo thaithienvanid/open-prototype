@@ -1,0 +1,107 @@
+/* The viewer's tokens: every value its styles read. Each color role is stated once, as its light and its dark
+   value; the page follows the system's setting. The token test (tests/viewer/tokens.test.ts) reads this file and holds
+   the contrast of each pair the viewer draws. */
+:root {
+  --spacing-0_5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1_5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  /* The layers, lowest first: what stacks inside a part (a cell's button over its picture, a mark, a phone's shading, a
+     comment's pins), the display bar and its menu, the drawers and the one over them, the dock, the toast, the full
+     screen's exit, and the skip link over everything. */
+  --layer-raised: 1;
+  --layer-mark: 2;
+  --layer-shade: 3;
+  --layer-pin: 4;
+  --layer-bar: 6;
+  --layer-drawer: 20;
+  --layer-drawer-over: 21;
+  --layer-dock: 25;
+  --layer-toast: 35;
+  --layer-exit: 40;
+  --layer-skip: 50;
+  --size-control: 1.875rem;
+  --size-target: 1.5rem;
+  --size-icon: 1rem;
+  --size-bar: 3.25rem;
+  /* The sizes of the viewer's small controls and marks: a row of a list and a comment's number, a test id's row, a row
+     of the shortcut sheet, the side panel's tab row, a small icon, a seen mark; and, in ems of their own text, a key, a
+     switch's state, the round's field, and a button over a frame. */
+  --size-row: 1.375rem;
+  --size-id-row: 1.625rem;
+  --size-key-row: 2.125rem;
+  --size-tab-row: 2.75rem;
+  --size-icon-small: 0.875rem;
+  --size-mark: 1.125rem;
+  --size-key: 1.75em;
+  --size-switch: 2.5em;
+  --size-round-field: 3.2em;
+  --size-round-field-min: 2.2em;
+  --size-compare-button: 2.15em;
+  --container-dialog: 28rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-full: 9999px;
+  --font-sans: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.35;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5;
+  --text-title: 1rem;
+  --text-title--line-height: 1.3;
+  --text-display: 1.25rem;
+  --text-display--line-height: 1.25;
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --focus-halo: 4px;
+  /* The room a focus ring and its halo take past a control: what a scrolling panel keeps at its edge for it. */
+  --focus-ring-room: calc(var(--focus-offset) + var(--focus-width) + var(--focus-halo));
+  --focus-field-halo: 3px;
+  /* The inside ring starts one thin border in, so a gap of the page colour lies between it and its group's edge, which the ring does not contrast with. */
+  --focus-inside-offset: calc(-1 * var(--focus-width) - var(--border-width-thin));
+  --focus-inside-gap: calc(2 * var(--focus-width));
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-raised: 0 1px 2px var(--shadow-color), 0 2px 8px var(--shadow-color);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-fast: 0ms; --duration-base: 0ms; }
+}
+:root {
+  color-scheme: light dark;
+  --background: light-dark(#fafaf9, #151514);
+  --foreground: light-dark(#1c1b19, #e4e2de);
+  --card: light-dark(#ffffff, #1e1e1c);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(#4d4b47, #d0cec9);
+  --primary-foreground: var(--background);
+  --muted: light-dark(#f4f4f2, #1b1b19);
+  --muted-foreground: light-dark(#5b5955, #b9b6b0);
+  --accent: light-dark(#ebeae7, #282725);
+  --border: color-mix(in srgb, var(--foreground) 12%, transparent);
+  --input: light-dark(#87847e, #7e7b75);
+  --ring: light-dark(#2563eb, #60a5fa);
+  --ring-halo: color-mix(in srgb, var(--ring) 25%, transparent);
+  --link: light-dark(#1d5fd1, #8cb4ff);
+  --backdrop: light-dark(#e8e7e4, #232321);
+  --scrim: light-dark(rgb(28 27 25 / 0.45), rgb(0 0 0 / 0.6));
+  --shadow-color: light-dark(rgb(28 27 25 / 0.08), rgb(0 0 0 / 0.45));
+  --warn: light-dark(#8f5a00, #f0b94e);
+  --warn-subtle: light-dark(#fcf4e2, #2f2710);
+  --comment: light-dark(#6d28d9, #c4a7ff);
+  --comment-foreground: light-dark(#ffffff, var(--background));
+  --comment-subtle: light-dark(#f3eefe, #272140);
+}

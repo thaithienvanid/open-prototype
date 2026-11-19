@@ -1,0 +1,56 @@
+// The module rows: each file of the tool in one row, and a file imports only from rows above it, or from files before
+// it in its own row. `tests/layers.test.ts` holds the rule, and `open-prototype guide --reference` prints the rows.
+export const MODULE_ROWS: { row: string; files: string[] }[] = [
+  { row: "text, names, data, errors, and files", files: ["modules.ts", "text.ts", "format.ts", "contract.ts", "json.ts", "finding.ts", "errors.ts", "fs.ts"] },
+  { row: "readers", files: ["html/unescape.ts", "html/tokenizer.ts", "css/sheet.ts", "css/colors.ts", "css/fonts.ts"] },
+  { row: "shipped files and settings", files: ["assets.ts", "project.ts"] },
+  {
+    row: "the design",
+    files: [
+      "design/allow.ts",
+      "design/facts.ts",
+      "design/read.ts",
+      "design/blocks.ts",
+      "design/flows.ts",
+      "design/designmd.ts",
+      "design/system.ts",
+      "design/files.ts",
+      "design/load.ts",
+    ],
+  },
+  {
+    row: "the checks",
+    files: [
+      "checks/names.ts",
+      "checks/devices.ts",
+      "checks/controls.ts",
+      "checks/integrity.ts",
+      "checks/lint.ts",
+      "checks/flows.ts",
+      "checks/images.ts",
+      "checks/fonts.ts",
+      "checks/system.ts",
+      "checks/accessibility.ts",
+      "checks/rounds.ts",
+      "checks/rules.ts",
+    ],
+  },
+  {
+    row: "outputs and the world",
+    files: [
+      "manifest.ts",
+      "shots.ts",
+      "stories.ts",
+      "story-index.ts",
+      "page.ts",
+      "output.ts",
+      "save.ts",
+      "scaffold.ts",
+      "guide.ts",
+      "server.ts",
+      "capture.ts",
+      "project-facts.ts",
+    ],
+  },
+  { row: "the entry and the command line", files: ["index.ts", "cli/internal.ts", "cli/arguments.ts", "cli/reference.ts", "cli.ts"] },
+];

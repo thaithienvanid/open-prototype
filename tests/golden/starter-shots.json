@@ -1,0 +1,119 @@
+{
+  "schema_version": "1",
+  "ok": true,
+  "target": "design/starter.html",
+  "findings": [],
+  "shots": [
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "320",
+      "theme": "light",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/ready?theme=light&frame=320&zoom=actual",
+      "file": "start-ready-320-light.png"
+    },
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "320",
+      "theme": "dark",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/ready?theme=dark&frame=320&zoom=actual",
+      "file": "start-ready-320-dark.png"
+    },
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "1024",
+      "theme": "light",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/ready?theme=light&frame=1024&zoom=actual",
+      "file": "start-ready-1024-light.png"
+    },
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "1024",
+      "theme": "dark",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/ready?theme=dark&frame=1024&zoom=actual",
+      "file": "start-ready-1024-dark.png"
+    },
+    {
+      "screen": "start",
+      "state": "empty",
+      "frame": "320",
+      "theme": "light",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/empty?theme=light&frame=320&zoom=actual",
+      "file": "start-empty-320-light.png"
+    },
+    {
+      "screen": "start",
+      "state": "empty",
+      "frame": "320",
+      "theme": "dark",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/empty?theme=dark&frame=320&zoom=actual",
+      "file": "start-empty-320-dark.png"
+    },
+    {
+      "screen": "start",
+      "state": "empty",
+      "frame": "1024",
+      "theme": "light",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/empty?theme=light&frame=1024&zoom=actual",
+      "file": "start-empty-1024-light.png"
+    },
+    {
+      "screen": "start",
+      "state": "empty",
+      "frame": "1024",
+      "theme": "dark",
+      "text": "100",
+      "dir": "ltr",
+      "purpose": "matrix",
+      "link": "#start/empty?theme=dark&frame=1024&zoom=actual",
+      "file": "start-empty-1024-dark.png"
+    },
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "320",
+      "theme": "light",
+      "text": "200",
+      "dir": "ltr",
+      "purpose": "text-200",
+      "link": "#start/ready?theme=light&frame=320&zoom=actual&text=200",
+      "file": "start-ready-320-light-text-200.png"
+    },
+    {
+      "screen": "start",
+      "state": "ready",
+      "frame": "1024",
+      "theme": "light",
+      "text": "100",
+      "dir": "rtl",
+      "purpose": "rtl",
+      "link": "#start/ready?theme=light&frame=1024&zoom=actual&dir=rtl",
+      "file": "start-ready-1024-light-rtl.png"
+    }
+  ],
+  "captured": null
+}

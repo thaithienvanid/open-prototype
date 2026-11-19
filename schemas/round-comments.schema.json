@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:open-prototype:1:round-comments",
+  "title": "Round comments",
+  "description": "A reviewer's comments, a person's or an agent's, on one round of a design: `<design folder>/rounds/<design name>/<N>/comments.json`, where the design name is the file's stem. The viewer writes a person's file (Download, or Copy the JSON), and `open-prototype save-comments` saves it. The viewer lists the comments of earlier rounds beside the design. `limits` is the one table the viewer, the save, and the build read: nothing is ever cut in silence.",
+  "examples": [
+    {
+      "round": 1,
+      "items": [
+        {
+          "id": "r1-1",
+          "screen": "list",
+          "state": "empty",
+          "comment": "Say which items the button saves."
+        }
+      ]
+    }
+  ],
+  "limits": {
+    "comment_characters": 2000,
+    "comments_in_a_round": 200,
+    "rounds_shown": 20,
+    "characters_in_all_rounds": 200000
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "round",
+    "items"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "description": "The version of the round files, apart from the version of what the tool prints. The viewer and the save write it; a file without it reads as 1. A newer one asks for a newer tool, and the check leaves the file out."
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9999,
+      "description": "The round's number, the `<N>` of its folder."
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 200,
+      "description": "The comments, in the order they were made.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "screen",
+          "state",
+          "comment"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^r[0-9]+-[0-9]+$",
+            "description": "The comment's id, `r<round>-<n>`, where `<round>` is the round of the file that holds it. A later round's `changes.json` names it in `answers`."
+          },
+          "type": {
+            "enum": [
+              "change",
+              "remove",
+              "add",
+              "question"
+            ],
+            "description": "What the comment asks for: change, remove, or add something, or a question. A file without it reads as change."
+          },
+          "screen": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The screen the comment was made on, by its `data-proto-screen` id."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The state the screen showed, by its `data-proto-state` name."
+          },
+          "testid": {
+            "type": "string",
+            "description": "The `data-testid` of the element the comment is about."
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Which of the visible elements that share the test id, counting from 0, when several do, such as one card of a list."
+          },
+          "box": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "Where the element showed in the frame's view when the comment was made, in CSS pixels from the frame's top left.",
+            "properties": {
+              "x": {
+                "type": "integer",
+                "description": "The element's left edge."
+              },
+              "y": {
+                "type": "integer",
+                "description": "The element's top edge."
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The element's width."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "The element's height."
+              }
+            }
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "What the reviewer said, in their words: text, tabs, and line breaks, and no other control character.",
+            "pattern": "^[^\\u0000-\\u0008\\u000b-\\u001f\\u007f-\\u009f]*$"
+          },
+          "frame": {
+            "type": "string",
+            "description": "The device frame the comment was made in, as the viewer's `frame=` key names it."
+          },
+          "theme": {
+            "type": "string",
+            "description": "The theme setting the comment was made in: light, dark, or system."
+          },
+          "shown_theme": {
+            "enum": [
+              "light",
+              "dark"
+            ],
+            "description": "The theme the view showed when the comment was made: the theme the reviewer saw, even when the viewer followed the system."
+          },
+          "link": {
+            "type": "string",
+            "description": "The viewer's deep link to the view the comment was made on."
+          },
+          "by": {
+            "type": "string",
+            "pattern": "^\\S+$",
+            "description": "Who wrote the comment: an agent writes `agent:<harness>/<model>`. The viewer writes none, so an item without `by` is a person's. It is a label the writer gave, never proof, and it decides nothing."
+          }
+        }
+      }
+    }
+  }
+}

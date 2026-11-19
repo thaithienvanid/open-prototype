@@ -1,0 +1,27 @@
+#!/bin/sh
+# open-prototype from the plugin's own copy of the source, so that in Claude Code the skill's `open-prototype check` and
+# the rest work with the plugin alone. Claude Code puts a plugin's bin/ folder on its Bash tool's PATH. Bun comes from
+# the PATH; the source comes from the folder beside this script, never from the project or the current folder.
+unset CDPATH
+ROOT=$(cd -P -- "$(dirname -- "$0")/.." 2>/dev/null && pwd -P) || { echo "open-prototype: the plugin's source is missing next to $0" >&2; exit 2; }
+if [ ! -f "$ROOT/src/cli.ts" ]; then echo "open-prototype: the plugin's source is missing at $ROOT/src/cli.ts" >&2; exit 2; fi
+if ! command -v bun >/dev/null 2>&1; then
+  echo "open-prototype: it needs Bun 1.4.4 or newer, and none is on the PATH." >&2
+  echo "Ask the person first, then install it with one of these, and run the command again:" >&2
+  echo "  curl -fsSL https://bun.sh/install | bash        (macOS or Linux, Bun's own installer, from https://bun.sh)" >&2
+  echo "  brew install oven-sh/bun/bun                     (macOS or Linux with Homebrew)" >&2
+  echo "  powershell -c \"irm bun.sh/install.ps1 | iex\"     (Windows, Bun's own installer, from https://bun.sh)" >&2
+  echo "A new shell, or the PATH line the installer prints, makes bun found." >&2
+  exit 2
+fi
+# The tool needs Bun 1.4.4 or newer, as package.json's engines says. An older Bun stops here with the step to update.
+V=$(bun --version 2>/dev/null)
+IFS=. read -r MAJ MIN PAT <<EOV
+$V
+EOV
+PAT=${PAT%%[!0-9]*}
+if [ "${MAJ:-0}" -lt 1 ] || { [ "$MAJ" -eq 1 ] && { [ "${MIN:-0}" -lt 4 ] || { [ "$MIN" -eq 4 ] && [ "${PAT:-0}" -lt 4 ]; }; }; }; then
+  echo "open-prototype: it needs Bun 1.4.4 or newer, and this one is $V. Ask the person first, then update it with: bun upgrade" >&2
+  exit 2
+fi
+exec bun "$ROOT/src/cli.ts" "$@"

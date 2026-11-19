@@ -1,0 +1,40 @@
+<section data-proto-screen="api" data-proto-title="Developer portal" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="dev-api-ready">
+    <div class="toolbar">
+      <p class="muted" data-proto-text="dev.summary"></p>
+      <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="developers:api/key-created" data-testid="dev-create-key">Create API key</button>
+    </div>
+    <h2 class="section-heading">Scoped API keys</h2>
+    <ul class="table-list" data-proto-list="dev.keys">
+      <template data-proto-item>
+        <li class="table-row" data-proto-component="api-key-row">
+          <div class="row-main">
+            <strong data-proto-field="name"></strong>
+            <code class="mono" data-proto-field="prefix"></code>
+          </div>
+          <span class="pill" data-proto-component="status-pill" data-proto-field="scope"></span>
+          <span class="row-meta" data-proto-field="last_used"></span>
+        </li>
+      </template>
+    </ul>
+    <h2 class="section-heading">Webhook deliveries</h2>
+    <ul class="table-list" data-proto-list="dev.webhooks">
+      <template data-proto-item>
+        <li class="table-row" data-proto-component="webhook-row">
+          <div class="row-main">
+            <strong data-proto-field="event"></strong>
+            <code class="mono" data-proto-field="endpoint"></code>
+          </div>
+          <span class="pill" data-proto-component="status-pill" data-proto-field="status"></span>
+          <button type="button" class="btn btn-secondary btn-sm" data-proto-component="button" data-proto-variant="secondary" data-proto-go="developers:api/ready" data-testid="webhook-retry">Retry</button>
+        </li>
+      </template>
+    </ul>
+  </div>
+  <div data-proto-state="key-created" data-testid="dev-api-created">
+    <div data-proto-use="notice" data-proto-arg-tone="success" data-proto-arg-role="status" data-proto-arg-title-key="dev.created_title" data-proto-arg-body-key="dev.created_body" data-proto-arg-go="developers:api/ready" data-proto-arg-testid="dev-key-done" data-proto-arg-action="I saved this key"></div>
+  </div>
+  <div data-proto-state="empty" data-testid="dev-api-empty">
+    <div data-proto-use="empty-state" data-proto-arg-title-key="dev.empty_title" data-proto-arg-body-key="dev.empty_body" data-proto-arg-go="developers:api/key-created" data-proto-arg-testid="dev-create-first" data-proto-arg-action="Create first API key"></div>
+  </div>
+</section>

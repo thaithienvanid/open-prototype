@@ -1,0 +1,60 @@
+<section data-proto-screen="members" data-proto-title="Team and roles" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="team-members-ready">
+    <div class="toolbar">
+      <p class="muted" data-proto-text="team.summary"></p>
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="team:audit" data-testid="team-open-audit">View audit log</button>
+        <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="team:members/invite-open" data-testid="team-invite-open">Invite member</button>
+      </div>
+    </div>
+    <ul class="table-list" data-proto-list="team.members"><template data-proto-item><div data-proto-use="member-row"></div></template></ul>
+  </div>
+  <div data-proto-state="invite-open" data-testid="team-members-invite">
+    <div class="panel-card">
+      <h2>Invite a member</h2>
+      <p class="muted" data-proto-text="team.invite_note"></p>
+      <div class="field-group">
+        <label class="field"><span>Email address</span><input type="email" value="lin@northstar.dev" data-testid="invite-email"></label>
+        <label class="field"><span>Role</span>
+          <select data-testid="invite-role">
+            <option>Owner</option>
+            <option selected>Admin</option>
+            <option>Billing</option>
+            <option>Member</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="team:members/ready" data-testid="invite-send">Send invite</button>
+        <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="team:members/ready" data-testid="invite-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div data-proto-state="empty" data-testid="team-members-empty">
+    <div data-proto-use="empty-state" data-proto-arg-title-key="team.empty_title" data-proto-arg-body-key="team.empty_body" data-proto-arg-go="team:members/invite-open" data-proto-arg-testid="team-invite-first" data-proto-arg-action="Invite first member"></div>
+  </div>
+</section>
+
+<section data-proto-screen="audit" data-proto-title="Audit log" data-proto-parent="members" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="team-audit-ready">
+    <div class="toolbar">
+      <p class="muted" data-proto-text="audit.retention"></p>
+      <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="projects:detail/exporting" data-testid="audit-export">Export JSON</button>
+    </div>
+    <ul class="table-list" data-proto-list="audit.events">
+      <template data-proto-item>
+        <li class="table-row" data-proto-component="audit-row">
+          <div class="row-main">
+            <strong data-proto-field="action"></strong>
+            <span class="row-meta" data-proto-field="actor"></span>
+          </div>
+          <span class="pill" data-proto-component="status-pill" data-proto-field="scope"></span>
+          <span class="row-meta" data-proto-field="when"></span>
+        </li>
+      </template>
+    </ul>
+  </div>
+  <div data-proto-state="empty" data-testid="team-audit-empty">
+    <div data-proto-use="empty-state" data-proto-arg-title-key="audit.empty_title" data-proto-arg-body-key="audit.empty_body" data-proto-arg-go="team:members" data-proto-arg-testid="audit-back-team" data-proto-arg-action="Back to team"></div>
+  </div>
+</section>

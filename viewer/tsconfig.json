@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "lib": ["ESNext", "DOM", "DOM.Iterable"], "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true },
+  "include": [".", "../tests/viewer", "../tools/build-viewer.ts", "../src/file-imports.d.ts"],
+  "exclude": []
+}

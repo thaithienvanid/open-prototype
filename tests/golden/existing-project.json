@@ -1,0 +1,364 @@
+{
+  "schema_version": "1",
+  "ok": true,
+  "target": null,
+  "findings": [],
+  "design_md": {
+    "file": "DESIGN.md",
+    "version": "alpha",
+    "tokens": [
+      {
+        "path": "colors.primary",
+        "name": "--color-primary",
+        "line": 5,
+        "light": "#1d4ed8",
+        "dark": "#93c5fd"
+      },
+      {
+        "path": "colors.light.surface",
+        "name": "--color-light-surface",
+        "line": 7,
+        "light": "#fafafb",
+        "dark": "#fafafb"
+      },
+      {
+        "path": "colors.light.surface-raised",
+        "name": "--color-light-surface-raised",
+        "line": 8,
+        "light": "#f3f4f5",
+        "dark": "#f3f4f5"
+      },
+      {
+        "path": "colors.light.text",
+        "name": "--color-light-text",
+        "line": 9,
+        "light": "#1c1e21",
+        "dark": "#1c1e21"
+      },
+      {
+        "path": "colors.light.text-muted",
+        "name": "--color-light-text-muted",
+        "line": 10,
+        "light": "#5b616b",
+        "dark": "#5b616b"
+      },
+      {
+        "path": "colors.light.border",
+        "name": "--color-light-border",
+        "line": 11,
+        "light": "#858b94",
+        "dark": "#858b94"
+      },
+      {
+        "path": "colors.light.accent",
+        "name": "--color-light-accent",
+        "line": 12,
+        "light": "#1d4ed8",
+        "dark": "#1d4ed8"
+      },
+      {
+        "path": "colors.dark.surface",
+        "name": "--color-dark-surface",
+        "line": 14,
+        "light": "#111317",
+        "dark": "#111317"
+      },
+      {
+        "path": "colors.dark.surface-raised",
+        "name": "--color-dark-surface-raised",
+        "line": 15,
+        "light": "#1c1e21",
+        "dark": "#1c1e21"
+      },
+      {
+        "path": "colors.dark.text",
+        "name": "--color-dark-text",
+        "line": 16,
+        "light": "#dfe2e6",
+        "dark": "#dfe2e6"
+      },
+      {
+        "path": "colors.dark.text-muted",
+        "name": "--color-dark-text-muted",
+        "line": 17,
+        "light": "#b0b6bf",
+        "dark": "#b0b6bf"
+      },
+      {
+        "path": "colors.dark.border",
+        "name": "--color-dark-border",
+        "line": 18,
+        "light": "#6b717a",
+        "dark": "#6b717a"
+      },
+      {
+        "path": "colors.dark.accent",
+        "name": "--color-dark-accent",
+        "line": 19,
+        "light": "#93c5fd",
+        "dark": "#93c5fd"
+      },
+      {
+        "path": "typography.body",
+        "name": "--typography-body",
+        "line": 21,
+        "light": "400 1rem/1.5 system-ui, sans-serif",
+        "dark": "400 1rem/1.5 system-ui, sans-serif"
+      },
+      {
+        "path": "typography.body.fontFamily",
+        "name": "--font-body",
+        "line": 22,
+        "light": "system-ui, sans-serif",
+        "dark": "system-ui, sans-serif"
+      },
+      {
+        "path": "typography.body.fontSize",
+        "name": "--text-body",
+        "line": 23,
+        "light": "1rem",
+        "dark": "1rem"
+      },
+      {
+        "path": "typography.body.fontWeight",
+        "name": "--font-weight-body",
+        "line": 24,
+        "light": "400",
+        "dark": "400"
+      },
+      {
+        "path": "typography.body.lineHeight",
+        "name": "--leading-body",
+        "line": 25,
+        "light": "1.5",
+        "dark": "1.5"
+      },
+      {
+        "path": "typography.title",
+        "name": "--typography-title",
+        "line": 26,
+        "light": "600 1.5rem/1.25 system-ui, sans-serif",
+        "dark": "600 1.5rem/1.25 system-ui, sans-serif"
+      },
+      {
+        "path": "typography.title.fontFamily",
+        "name": "--font-title",
+        "line": 27,
+        "light": "system-ui, sans-serif",
+        "dark": "system-ui, sans-serif"
+      },
+      {
+        "path": "typography.title.fontSize",
+        "name": "--text-title",
+        "line": 28,
+        "light": "1.5rem",
+        "dark": "1.5rem"
+      },
+      {
+        "path": "typography.title.fontWeight",
+        "name": "--font-weight-title",
+        "line": 29,
+        "light": "600",
+        "dark": "600"
+      },
+      {
+        "path": "typography.title.lineHeight",
+        "name": "--leading-title",
+        "line": 30,
+        "light": "1.25",
+        "dark": "1.25"
+      },
+      {
+        "path": "rounded.control",
+        "name": "--radius-control",
+        "line": 32,
+        "light": "0.5rem",
+        "dark": "0.5rem"
+      },
+      {
+        "path": "spacing.2",
+        "name": "--spacing-2",
+        "line": 34,
+        "light": "0.5rem",
+        "dark": "0.5rem"
+      },
+      {
+        "path": "spacing.3",
+        "name": "--spacing-3",
+        "line": 35,
+        "light": "1rem",
+        "dark": "1rem"
+      },
+      {
+        "path": "spacing.target",
+        "name": "--spacing-target",
+        "line": 36,
+        "light": "2.75rem",
+        "dark": "2.75rem"
+      },
+      {
+        "path": "motion.state-change.duration",
+        "name": "--motion-state-change-duration",
+        "line": 39,
+        "light": "150ms",
+        "dark": "150ms"
+      },
+      {
+        "path": "motion.state-change.timingFunction",
+        "name": "--motion-state-change-timing-function",
+        "line": 40,
+        "light": "ease-out",
+        "dark": "ease-out"
+      },
+      {
+        "path": "components.message-row.padding",
+        "name": "--component-message-row-padding",
+        "line": 43,
+        "light": "1rem",
+        "dark": "1rem"
+      },
+      {
+        "path": "components.button-primary.backgroundColor",
+        "name": "--component-button-primary-background-color",
+        "line": 45,
+        "light": "#1d4ed8",
+        "dark": "#93c5fd"
+      },
+      {
+        "path": "components.button-primary.textColor",
+        "name": "--component-button-primary-text-color",
+        "line": 46,
+        "light": "#fafafb",
+        "dark": "#111317"
+      },
+      {
+        "path": "components.button-primary.rounded",
+        "name": "--component-button-primary-rounded",
+        "line": 47,
+        "light": "0.5rem",
+        "dark": "0.5rem"
+      },
+      {
+        "path": "components.button-secondary.textColor",
+        "name": "--component-button-secondary-text-color",
+        "line": 49,
+        "light": "#1d4ed8",
+        "dark": "#93c5fd"
+      },
+      {
+        "path": "components.button-secondary.rounded",
+        "name": "--component-button-secondary-rounded",
+        "line": 50,
+        "light": "0.5rem",
+        "dark": "0.5rem"
+      },
+      {
+        "path": "colors.surface",
+        "name": "--color-surface",
+        "line": 7,
+        "light": "#fafafb",
+        "dark": "#111317"
+      },
+      {
+        "path": "colors.surface-raised",
+        "name": "--color-surface-raised",
+        "line": 8,
+        "light": "#f3f4f5",
+        "dark": "#1c1e21"
+      },
+      {
+        "path": "colors.text",
+        "name": "--color-text",
+        "line": 9,
+        "light": "#1c1e21",
+        "dark": "#dfe2e6"
+      },
+      {
+        "path": "colors.text-muted",
+        "name": "--color-text-muted",
+        "line": 10,
+        "light": "#5b616b",
+        "dark": "#b0b6bf"
+      },
+      {
+        "path": "colors.border",
+        "name": "--color-border",
+        "line": 11,
+        "light": "#858b94",
+        "dark": "#6b717a"
+      },
+      {
+        "path": "colors.accent",
+        "name": "--color-accent",
+        "line": 12,
+        "light": "#1d4ed8",
+        "dark": "#93c5fd"
+      }
+    ],
+    "components": [
+      {
+        "name": "message-row",
+        "line": 42
+      },
+      {
+        "name": "button-primary",
+        "line": 44
+      },
+      {
+        "name": "button-secondary",
+        "line": 48
+      }
+    ],
+    "sections": [
+      {
+        "heading": "Overview",
+        "line": 53
+      },
+      {
+        "heading": "Colors",
+        "line": 57
+      },
+      {
+        "heading": "Typography",
+        "line": 61
+      },
+      {
+        "heading": "Layout",
+        "line": 65
+      },
+      {
+        "heading": "Elevation & Depth",
+        "line": 69
+      },
+      {
+        "heading": "Shapes",
+        "line": 73
+      },
+      {
+        "heading": "Motion & Micro-interaction",
+        "line": 77
+      },
+      {
+        "heading": "Voice & Content Strategy",
+        "line": 81
+      },
+      {
+        "heading": "Components",
+        "line": 85
+      },
+      {
+        "heading": "Do's and Don'ts",
+        "line": 90
+      }
+    ],
+    "exists": true
+  },
+  "design_md_elsewhere": [],
+  "tokens": [
+    {
+      "file": "tokens/brand.css",
+      "exists": true
+    }
+  ],
+  "story_index": "storybook-static/index.json"
+}
