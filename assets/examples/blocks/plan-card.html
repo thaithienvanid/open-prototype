@@ -1,0 +1,14 @@
+<article class="plan-card plan-{{variant}}" data-proto-component="plan-card" data-proto-variant="{{variant}}">
+  <div class="plan-head">
+    <h2>{{name}}</h2>
+    <span class="pill" data-proto-component="status-pill">{{badge}}</span>
+  </div>
+  <p class="plan-price">{{price}}</p>
+  <p class="plan-summary" data-proto-text="{{summary-key}}"></p>
+  <ul class="plan-list">
+    <li data-proto-text="{{feat-a}}"></li>
+    <li data-proto-text="{{feat-b}}"></li>
+    <li data-proto-text="{{feat-c}}"></li>
+  </ul>
+  <button type="button" class="btn btn-{{btn-variant}} btn-full" data-proto-component="button" data-proto-variant="{{btn-variant}}" aria-disabled="{{current}}" data-proto-go="{{go}}" data-testid="{{testid}}">{{cta}}</button>
+</article>

@@ -1,0 +1,35 @@
+<section data-proto-screen="orgs" data-proto-title="Staff back office" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="backoffice-ready">
+    <div data-proto-use="notice" data-proto-arg-tone="info" data-proto-arg-role="status" data-proto-arg-title-key="staff.banner_title" data-proto-arg-body-key="staff.banner_body" data-proto-arg-go="team:audit" data-proto-arg-testid="staff-view-audit" data-proto-arg-action="Audit log"></div>
+    <ul class="table-list" data-proto-list="staff.orgs">
+      <template data-proto-item>
+        <li class="table-row" data-proto-component="org-row">
+          <div class="row-main">
+            <strong data-proto-field="name"></strong>
+            <span class="row-meta" data-proto-field="meta"></span>
+          </div>
+          <span class="pill" data-proto-component="status-pill" data-proto-field="status"></span>
+          <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="backoffice:orgs/suspended" data-testid="staff-suspend">Suspend</button>
+        </li>
+      </template>
+    </ul>
+  </div>
+  <div data-proto-state="suspended" data-testid="backoffice-suspended">
+    <div data-proto-use="notice" data-proto-arg-tone="warning" data-proto-arg-role="status" data-proto-arg-title-key="staff.suspended_title" data-proto-arg-body-key="staff.suspended_body" data-proto-arg-go="backoffice:orgs/ready" data-proto-arg-testid="staff-restore" data-proto-arg-action="Restore organization"></div>
+  </div>
+  <div data-proto-state="staff-2fa" data-testid="backoffice-2fa">
+    <div class="auth-card">
+      <div class="auth-head">
+        <span class="pill pill-accent" data-proto-component="status-pill">Staff 2FA required</span>
+        <h2 data-proto-text="staff.tfa_heading"></h2>
+        <p class="muted" data-proto-text="staff.tfa_body"></p>
+      </div>
+      <div class="field-group">
+        <label class="field"><span>Hardware key or TOTP code</span><input type="text" value="914 208" data-testid="staff-tfa-code"></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-full" data-proto-component="button" data-proto-variant="primary" data-proto-go="backoffice:orgs/ready" data-testid="staff-tfa-verify">Verify staff session</button>
+      </div>
+    </div>
+  </div>
+</section>

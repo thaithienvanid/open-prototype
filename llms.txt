@@ -1,0 +1,23 @@
+# open-prototype
+
+> Design UI prototypes as plain HTML, from a first draft to a reviewed design ready to build, against a project's own DESIGN.md, for designers and AI coding agents. A design is an ordinary HTML file read through one prefix, `data-proto-`. The `open-prototype` command checks it, naming each problem by its rule, builds one page that shows every screen and state in a viewer, keeps a review as rounds of comments beside the design, and takes the screenshots a review needs. TypeScript on Bun, local-first, with no runtime dependency, Apache-2.0.
+
+An agent that uses the tool reads the skill first, then asks the tool itself: `open-prototype guide` prints the format, and `open-prototype guide --reference` every rule, command and setting. Every command but `serve` prints one JSON envelope with `--json`. Act on a finding by its rule id, never by its words.
+
+## Start here
+
+- [Install for an agent](llms-install.md): one line for Claude Code, Antigravity, Codex, Muse Code, or OpenCode; for any other agent, one Bun command, a clone, or a release binary with no Bun
+- [README](README.md): what the tool is, how to install it, a first design, and a review round
+- [The prototyping skill](skills/prototyping/SKILL.md): when to prototype, what a good prototype is, and the loop
+
+## Docs
+
+- [Product spec](docs/product-spec.md): who it is for, the principles, the scope, what later work waits on
+- [Tech spec](docs/tech-spec.md): the format, the architecture, the page contract, the checks, safety, the tests
+- [Reference](docs/reference.md): every rule, command, setting and output key, generated from the code
+- [CHANGELOG](CHANGELOG.md): what the first release holds, and its known limits
+
+## Optional
+
+- [CONTRIBUTING](CONTRIBUTING.md): how to run the full check and send a change
+- [SECURITY](SECURITY.md): how to report a vulnerability privately

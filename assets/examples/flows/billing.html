@@ -1,0 +1,27 @@
+<section data-proto-screen="plans" data-proto-title="Billing and plans" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="billing-ready">
+    <div class="toolbar">
+      <p class="muted" data-proto-text="billing.summary"></p>
+      <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="billing:plans/upgraded" data-testid="billing-upgrade-pro">Upgrade to Pro</button>
+    </div>
+    <div class="stat-grid">
+      <div data-proto-use="stat-card" data-proto-arg-label="Current plan" data-proto-arg-value-key="billing.current_plan" data-proto-arg-hint-key="billing.provider_hint"></div>
+      <div data-proto-use="stat-card" data-proto-arg-label="Seats" data-proto-arg-value-key="billing.seats_used" data-proto-arg-hint-key="billing.seats_hint"></div>
+      <div data-proto-use="stat-card" data-proto-arg-label="Next invoice" data-proto-arg-value-key="billing.next_invoice" data-proto-arg-hint-key="billing.invoice_hint"></div>
+    </div>
+    <div class="plan-grid">
+      <div data-proto-use="plan-card" data-proto-arg-variant="default" data-proto-arg-name="Free" data-proto-arg-badge="Current" data-proto-arg-price="$0 / month" data-proto-arg-summary-key="billing.free_summary" data-proto-arg-feat-a="billing.free_a" data-proto-arg-feat-b="billing.free_b" data-proto-arg-feat-c="billing.free_c" data-proto-arg-btn-variant="secondary" data-proto-arg-current="true" data-proto-arg-go="billing:plans/ready" data-proto-arg-testid="plan-free" data-proto-arg-cta="Current plan"></div>
+      <div data-proto-use="plan-card" data-proto-arg-variant="featured" data-proto-arg-name="Pro" data-proto-arg-badge="Recommended" data-proto-arg-price="$49 / month" data-proto-arg-summary-key="billing.pro_summary" data-proto-arg-feat-a="billing.pro_a" data-proto-arg-feat-b="billing.pro_b" data-proto-arg-feat-c="billing.pro_c" data-proto-arg-btn-variant="secondary" data-proto-arg-current="false" data-proto-arg-go="billing:plans/upgraded" data-proto-arg-testid="plan-pro" data-proto-arg-cta="Choose Pro"></div>
+      <div data-proto-use="plan-card" data-proto-arg-variant="default" data-proto-arg-name="Team" data-proto-arg-badge="Scale" data-proto-arg-price="$149 / month" data-proto-arg-summary-key="billing.team_summary" data-proto-arg-feat-a="billing.team_a" data-proto-arg-feat-b="billing.team_b" data-proto-arg-feat-c="billing.team_c" data-proto-arg-btn-variant="secondary" data-proto-arg-current="false" data-proto-arg-go="billing:plans/upgraded" data-proto-arg-testid="plan-team" data-proto-arg-cta="Choose Team"></div>
+    </div>
+  </div>
+  <div data-proto-state="limit-reached" data-testid="billing-limit-reached">
+    <div data-proto-use="notice" data-proto-arg-tone="warning" data-proto-arg-role="alert" data-proto-arg-title-key="billing.limit_title" data-proto-arg-body-key="billing.limit_body" data-proto-arg-go="billing:plans/upgraded" data-proto-arg-testid="billing-upgrade-now" data-proto-arg-action="Upgrade to Pro"></div>
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="billing:plans/ready" data-testid="billing-limit-back">Compare all plans</button>
+    </div>
+  </div>
+  <div data-proto-state="upgraded" data-testid="billing-upgraded">
+    <div data-proto-use="notice" data-proto-arg-tone="success" data-proto-arg-role="status" data-proto-arg-title-key="billing.upgraded_title" data-proto-arg-body-key="billing.upgraded_body" data-proto-arg-go="team:members/invite-open" data-proto-arg-testid="billing-invite-member" data-proto-arg-action="Invite a member"></div>
+  </div>
+</section>

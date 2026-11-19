@@ -1,0 +1,78 @@
+<section data-proto-screen="signin" data-proto-title="Sign in" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="auth-signin-ready">
+    <div class="auth-card">
+      <div class="auth-head">
+        <span class="pill" data-proto-component="status-pill" data-proto-text="auth.local_badge"></span>
+        <h2 data-proto-text="auth.signin_heading"></h2>
+        <p class="muted" data-proto-text="auth.signin_sub"></p>
+      </div>
+      <div class="field-group">
+        <label class="field"><span>Work email</span><input type="email" value="maya@northstar.dev" data-testid="signin-email"></label>
+        <label class="field"><span>Password</span><input type="password" value="••••••••••••" data-testid="signin-password"></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-full" data-proto-component="button" data-proto-variant="primary" data-proto-go="auth:signin/two-factor" data-testid="signin-submit">Continue</button>
+        <button type="button" class="btn btn-secondary btn-full" data-proto-component="button" data-proto-variant="secondary" data-proto-go="auth:onboarding" data-testid="signin-create-org">Create an organization</button>
+      </div>
+    </div>
+  </div>
+  <div data-proto-state="two-factor" data-testid="auth-signin-2fa">
+    <div class="auth-card">
+      <div class="auth-head">
+        <span class="pill pill-accent" data-proto-component="status-pill">Two-factor</span>
+        <h2 data-proto-text="auth.tfa_heading"></h2>
+        <p class="muted" data-proto-text="auth.tfa_sub"></p>
+      </div>
+      <div class="field-group">
+        <label class="field"><span>6-digit authenticator code</span><input type="text" value="482 910" data-testid="tfa-code"></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-full" data-proto-component="button" data-proto-variant="primary" data-proto-go="projects:list" data-testid="tfa-verify">Verify and open workspace</button>
+        <button type="button" class="btn btn-secondary btn-full" data-proto-component="button" data-proto-variant="secondary" data-proto-go="auth:signin/ready" data-testid="tfa-back">Back to sign in</button>
+      </div>
+    </div>
+  </div>
+  <div data-proto-state="error" data-testid="auth-signin-error">
+    <div class="auth-card">
+      <div data-proto-use="notice" data-proto-arg-tone="danger" data-proto-arg-role="alert" data-proto-arg-title-key="auth.error_title" data-proto-arg-body-key="auth.error_body" data-proto-arg-go="auth:signin/ready" data-proto-arg-testid="signin-retry" data-proto-arg-action="Try again"></div>
+      <div class="field-group">
+        <label class="field"><span>Work email</span><input type="email" value="maya@northstar.dev" data-testid="signin-error-email"></label>
+        <label class="field"><span>Password</span><input type="password" value="••••••••" data-testid="signin-error-password"></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-full" data-proto-component="button" data-proto-variant="primary" data-proto-go="auth:signin/two-factor" data-testid="signin-error-submit">Continue</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-proto-screen="onboarding" data-proto-title="Create organization" data-proto-parent="signin" data-proto-initial="ready">
+  <div data-proto-state="ready" data-testid="auth-onboarding-ready">
+    <div class="auth-card">
+      <div class="auth-head">
+        <span class="pill" data-proto-component="status-pill">Step 1 of 1</span>
+        <h2 data-proto-text="auth.org_heading"></h2>
+        <p class="muted" data-proto-text="auth.org_sub"></p>
+      </div>
+      <div class="field-group">
+        <label class="field"><span>Organization name</span><input type="text" value="Northstar Labs" data-testid="org-name"></label>
+        <label class="field"><span>Invite a teammate (optional)</span><input type="email" value="devon@northstar.dev" data-testid="org-invite-email"></label>
+        <label class="field"><span>Role</span>
+          <select data-testid="org-invite-role">
+            <option selected>Admin</option>
+            <option>Billing</option>
+            <option>Member</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="auth:onboarding/invited" data-testid="org-create">Create organization</button>
+      </div>
+    </div>
+  </div>
+  <div data-proto-state="invited" data-testid="auth-onboarding-invited">
+    <div class="auth-card">
+      <div data-proto-use="notice" data-proto-arg-tone="success" data-proto-arg-role="status" data-proto-arg-title-key="auth.created_title" data-proto-arg-body-key="auth.created_body" data-proto-arg-go="projects:list/empty" data-proto-arg-testid="org-open-workspace" data-proto-arg-action="Open workspace"></div>
+    </div>
+  </div>
+</section>

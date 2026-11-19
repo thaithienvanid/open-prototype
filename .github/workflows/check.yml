@@ -1,0 +1,52 @@
+# `bun run check` on every push to main and every pull request, on macOS, Linux and Windows, each with the runner's Chrome.
+# A push to another branch runs it through its pull request, so a pull request from this repository runs it once. The
+# release calls it too, on the tag's commit, before it builds anything. Each action is pinned by its full commit SHA,
+# with its release in the comment beside it.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+# A newer push to a pull request cancels the run it supersedes. Every other run, on main or called by the release, is a
+# group of its own, so none is cancelled or left waiting, and every commit of main keeps its result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    name: check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.4
+      # As `tools/check-linux.sh` does: CHROME_BIN names the browser, and the fonts and tools the browser tests use
+      # come from the distribution. Ubuntu stops a program's own user namespaces by AppArmor, and Chrome's sandbox,
+      # which the capture keeps on, needs them.
+      - name: The browser and the tools of the browser tests, on Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fonts-dejavu-core fonts-liberation lsof procps
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          chrome="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          "$chrome" --version
+          echo "CHROME_BIN=$chrome" >> "$GITHUB_ENV"
+      - run: bun --version
+      - run: bun install --frozen-lockfile
+      - run: bun run check

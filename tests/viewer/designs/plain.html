@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="plain" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plain: prototype</title>
+<style data-proto-tokens>
+:root { --space: 16px; --color-surface: #fafafb; --color-text: #1c1e21; --color-border: #858b94; color-scheme: light; }
+</style>
+<style>
+  body { margin: 0; padding: var(--space); font: 1rem/1.5 system-ui, sans-serif; background: var(--color-surface); color: var(--color-text); }
+  body.plain-body { outline: 0; }
+  .list { display: grid; gap: var(--space); }
+  button { font: inherit; min-height: 24px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); }
+</style>
+</head>
+<body class="plain-body">
+<header><h1 data-proto-slot="title"></h1></header>
+<main>
+  <section data-proto-screen="list" data-proto-title="List">
+    <div data-proto-state="ready" class="list" data-testid="list-ready"><p data-proto-text="welcome"></p><button type="button" data-proto-go="detail" data-testid="list-open">Open</button><button type="button" data-proto-go="many" data-testid="list-many">Many states</button></div>
+    <div data-proto-state="empty" data-testid="list-empty"><p data-proto-text="nothing"></p></div>
+  </section>
+  <section data-proto-screen="detail" data-proto-title="Detail" data-proto-parent="list">
+    <div data-proto-state="ready" data-testid="detail-ready"><p data-proto-text="welcome"></p><button type="button" data-proto-go="list" data-testid="detail-back">Back to the list</button></div>
+  </section>
+  <section data-proto-screen="many" data-proto-title="Many states">
+    <div data-proto-state="s1" data-testid="many-s1"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s2" data-testid="many-s2"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s3" data-testid="many-s3"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s4" data-testid="many-s4"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s5" data-testid="many-s5"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s6" data-testid="many-s6"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s7" data-testid="many-s7"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s8" data-testid="many-s8"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s9" data-testid="many-s9"><p data-proto-text="welcome"></p></div>
+    <div data-proto-state="s10" data-testid="many-s10"><p data-proto-text="welcome"></p></div>
+  </section>
+</main>
+<script type="application/json" data-proto-fixtures>
+{ "product": "Plain", "welcome": "Three items are ready this week.", "nothing": "No item yet." }
+</script>
+</body>
+</html>

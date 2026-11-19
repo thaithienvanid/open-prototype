@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-proto-format="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platforms" content="web">
+<meta name="themes" content="light dark">
+<title>Inbox</title>
+<style>
+body { margin: 0; padding: var(--spacing-3); font: var(--typography-body); background: var(--color-surface); color: var(--color-text); }
+h1 { font: var(--typography-title); }
+ul { list-style: none; margin: 0; padding: 0; }
+.row { display: block; width: 100%; text-align: start; padding: var(--component-message-row-padding); border: 0; border-bottom: 1px solid var(--color-border); background: transparent; color: inherit; font: inherit; min-height: var(--spacing-target); }
+.row span { display: block; color: var(--color-text-muted); }
+button.primary { min-height: var(--spacing-target); padding: 0 var(--spacing-3); border: 0; border-radius: var(--component-button-primary-rounded); background: var(--component-button-primary-background-color); color: var(--component-button-primary-text-color); font: inherit; }
+button.secondary { min-height: var(--spacing-target); padding: 0 var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--component-button-secondary-rounded); background: transparent; color: var(--color-accent); font: inherit; }
+[data-proto-state] { transition: opacity var(--motion-state-change-duration) var(--motion-state-change-timing-function); }
+@media (prefers-reduced-motion: reduce) { :root { --motion-state-change-duration: 0ms; } }
+</style>
+</head>
+<body>
+<main><h1 data-proto-slot="title"></h1>
+<section data-proto-screen="inbox" data-proto-title="Inbox" data-proto-initial="list">
+  <div data-proto-state="list" data-testid="inbox-list">
+    <ul data-proto-list="conversations"><template data-proto-item><li><button type="button" class="row" data-proto-component="message-row" data-proto-go="conversation" data-testid="inbox-open"><strong data-proto-field="subject"></strong> <span data-proto-field="from"></span></button></li></template></ul>
+  </div>
+  <div data-proto-state="empty" data-testid="inbox-empty">
+    <p data-proto-text="inbox.empty"></p>
+  </div>
+  <div data-proto-state="error" data-testid="inbox-error">
+    <p role="alert" data-proto-text="inbox.error"></p>
+    <button type="button" class="primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="inbox/list" data-testid="inbox-retry" data-proto-text="inbox.retry"></button>
+  </div>
+</section>
+<section data-proto-screen="conversation" data-proto-title="Conversation" data-proto-parent="inbox" data-proto-source="conversations">
+  <div data-proto-state="open" data-testid="conversation-open">
+    <h2 data-proto-field="subject"></h2>
+    <p data-proto-field="body"></p>
+    <button type="button" class="primary" data-proto-component="button" data-proto-variant="primary" data-proto-go="conversation/open" data-testid="conversation-reply" data-proto-text="conversation.reply"></button>
+    <button type="button" class="secondary" data-proto-component="button" data-proto-variant="secondary" data-proto-go="conversation/closed" data-testid="conversation-close" data-proto-text="conversation.close"></button>
+  </div>
+  <div data-proto-state="closed" data-testid="conversation-closed">
+    <p role="status" data-proto-text="conversation.closed"></p>
+  </div>
+</section></main>
+<script type="application/json" data-proto-fixtures>
+{
+  "product": "Inbox",
+  "inbox": { "empty": "No conversation waits for you. New ones arrive here.", "error": "The inbox did not load. Your conversations are safe.", "retry": "Try again" },
+  "conversation": { "reply": "Reply", "close": "Close conversation", "closed": "Closed. The customer gets your last reply." },
+  "conversations": [
+    { "subject": "My order arrived without its charger", "from": "Priya Raman, 10:42", "body": "The box had the laptop and the cable, but no charger. Can you send one?" },
+    { "subject": "Change of address", "from": "Tomás Ortega, 09:15", "body": "We moved last week. Please send the next delivery to the new address." }
+  ]
+}
+</script>
+</body>
+</html>

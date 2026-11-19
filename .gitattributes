@@ -1,0 +1,6 @@
+# Every text file keeps LF line endings on every system, so a checkout on Windows matches the format check and the
+# tests that read the source byte for byte. Images and other binary files are never converted.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

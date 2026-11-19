@@ -1,0 +1,142 @@
+{
+  "skill_name": "prototyping",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the prototyping skill. Design \"Shelf\", a small product for a person who borrows from a public library, as a prototype of three screens: the loans list, one loan's detail, and renewing a loan. The loans list has four states: ready with three loans, empty, loading, and failed to load. The detail shows one loan's title, author, and due date, and has two states: ready, and overdue. Renewing has three states: asking the person to confirm, renewed with the new due date, and refused because someone else has reserved the book. The product runs on the web and on iOS, in a light and a dark theme. The project has no tokens, components, or copy yet, so define a small set of tokens and write plain, real copy yourself, and say in your report that you wrote it. Keep the design in `design/shelf.html`. I cannot answer questions during this run: where you would ask, write down what you assumed. Finish with a report of the screens and states you drew, the commands you ran with their exit codes, what you looked at, and what you could not verify.",
+      "expected_output": "design/shelf.html holds three screens with four, two, and three states, for the web and iOS in a light and a dark theme. It passes the check and builds, DESIGN.md sits at the project's top, and the report lists the agent rounds, the assumed answers, the draft copy, and what waits for the person.",
+      "files": [],
+      "assertions": [
+        "`design/shelf.html` exists, and `open-prototype check design/shelf.html` exits with code 0.",
+        "`open-prototype check design/shelf.html --json` prints `\"ok\": true` and no finding whose level is `problem`.",
+        "`open-prototype screens design/shelf.html --json` lists three screens.",
+        "In that output, one screen has four states, one has two, and one has three.",
+        "`open-prototype build design/shelf.html` exits with code 0 and writes a page.",
+        "`open-prototype shots design/shelf.html --json` lists views for a web frame and for the iOS frame, each in `light` and in `dark`.",
+        "The project has no `prototype.config.json` that turns a rule off.",
+        "`DESIGN.md` exists at the project's top, as step 1 writes it for a new product.",
+        "No file is tracked or left in the project outside `design/` but the tool's output folder and that `DESIGN.md`.",
+        "Every comment in each round under `design/rounds/shelf/` names its writer in `by`, in the form `agent:<harness>/<model>`. A run that left no round passes this line only when the second list's line on the agent rounds passes.",
+        "The design file holds no `<script>` but its one block of example data.",
+        "Each of the nine states says what happened, in real copy, and gives one next step that is a control on that state.",
+        "The three loans differ, and one has a long title. The detail screen shows the loan a person opened, on the second and third loan as on the first.",
+        "No state claims an outcome that has not happened: \"renewed\" shows only in the renewed state, with a new date later than the old one.",
+        "Every colour comes from a token, and both themes are finished: no text is hard to read in either.",
+        "The report names every screen and state, each command with its exit code, and what the agent could not verify.",
+        "The report says which copy and which tokens the agent wrote itself, and lists what it assumed.",
+        "The report says whether the agent read pictures of the views. If it could not, it says so and lists each such view for the person's turn.",
+        "The report says how many agent rounds ran, each saved by another agent that named itself in `by`, and each round it says was saved is under `design/rounds/shelf/`; or, with no round there, the report says that no second agent could run, or that the first agent round brought no comment.",
+        "The agent stopped before the person's round, and the report does not say that a person saw or approved the design."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the prototyping skill. Inbox is our product, and it has its own design document, tokens, components, and copy. Design one new screen for it: the settings of a person's notifications, with a ready state, a saved state, and a state where saving failed. Keep it in `design/notifications.html`. I cannot answer questions during this run: where you would ask, write down what you assumed.",
+      "expected_output": "design/notifications.html holds one screen with a ready, a saved, and a failed state, drawn from Inbox's own DESIGN.md, tokens, components, and voice. It passes the check with no system or accessibility finding, and the hand-off lists the draft copy, the assumed answers, and what waits for the person.",
+      "files": [],
+      "assertions": [
+        "The agent ran `open-prototype project` before its first design, and read `DESIGN.md` before it drew.",
+        "`open-prototype check design/notifications.html` exits with code 0, and its `--json` form prints no `system` or `accessibility` finding.",
+        "Every custom property the design reads is one `DESIGN.md` gives, or one the design sets itself, and the design sets none of `DESIGN.md`'s names again.",
+        "Every component the design names is a component of `DESIGN.md` or the story index, and the copy follows the document's voice.",
+        "From every state, the person's task finishes: a state that lets a person change a setting also lets them save it.",
+        "The hand-off lists each draft of copy and where it stands, for the person to approve.",
+        "The agent stopped before the person's round, and said what waits for a person: its questions with the answers it assumed, the draft copy, the round, and the approval."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use the prototyping skill. Review the design in `design/shelf.html`, which another agent made. Save your comments as its next round.",
+      "expected_output": "A second agent, starting from the folder the first eval left, saves its own round of comments on design/shelf.html, each on a view the design has, with a proof and its writer in by, or hands back that the round brings no comment. The design still passes the check.",
+      "files": [],
+      "assertions": [
+        "That round's `comments.json` exists, or, with no fault found, no new round exists and the hand-back says the round brings no comment.",
+        "`open-prototype check design/shelf.html` still exits with code 0.",
+        "Each comment names a screen and a state the design has, gives a proof, names its writer in `by`, and has an id of that round.",
+        "Each check the agent could not run is in its hand-back, with the reason, and is no comment."
+      ]
+    }
+  ],
+  "trigger_queries": [
+    {
+      "query": "Mock up the settings screen for notifications before we build it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Can you wireframe the onboarding flow? Three screens, nothing fancy.",
+      "should_trigger": true
+    },
+    {
+      "query": "Sketch the checkout page when the cart is empty, while it loads, and when the payment fails.",
+      "should_trigger": true
+    },
+    {
+      "query": "Prototype two directions for the dashboard so I can pick one.",
+      "should_trigger": true
+    },
+    {
+      "query": "What would the account page look like on a phone and on desktop, in dark mode?",
+      "should_trigger": true
+    },
+    {
+      "query": "Design the error and offline states of the file upload screen.",
+      "should_trigger": true
+    },
+    {
+      "query": "Here is the comments.json I downloaded from the review page. Save it as the next round and answer it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Review the design in design/shelf.html, which another agent made, and save your comments as its next round.",
+      "should_trigger": true
+    },
+    {
+      "query": "The built login page drifted from what we agreed. Compare it with its design.",
+      "should_trigger": true
+    },
+    {
+      "query": "Draw the loading state of the search results before anyone codes it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Fix the CSS of the login page in the React app.",
+      "should_trigger": false
+    },
+    {
+      "query": "Build the settings screen as a React component from this mockup.",
+      "should_trigger": false
+    },
+    {
+      "query": "Write the API reference for the payments service.",
+      "should_trigger": false
+    },
+    {
+      "query": "Review the code in this pull request.",
+      "should_trigger": false
+    },
+    {
+      "query": "Make a slide deck about the roadmap for next quarter.",
+      "should_trigger": false
+    },
+    {
+      "query": "The loading spinner in production never stops. Find out why.",
+      "should_trigger": false
+    },
+    {
+      "query": "Rename the Save button to Apply across the codebase.",
+      "should_trigger": false
+    },
+    {
+      "query": "Write unit tests for the empty-state component.",
+      "should_trigger": false
+    },
+    {
+      "query": "Turn this exported design into Tailwind classes in our Vue app.",
+      "should_trigger": false
+    },
+    {
+      "query": "Draw an architecture diagram of the payment service.",
+      "should_trigger": false
+    }
+  ]
+}

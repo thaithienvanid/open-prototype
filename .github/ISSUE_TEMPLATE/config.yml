@@ -1,0 +1,5 @@
+# A vulnerability is reported privately, never in a public issue, as SECURITY.md says.
+contact_links:
+  - name: A security report
+    url: https://github.com/thaithienvanid/open-prototype/security/advisories/new
+    about: Report a vulnerability privately, through the repository's security advisories, never in a public issue.

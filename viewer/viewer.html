@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; style-src-elem 'none'; style-src-attr 'unsafe-inline'; script-src 'sha256-NhEW1T5AJXynL/31owqN5PoTsY3vmIGLvLo8xwMf9Tc='; img-src data:; font-src data:; base-uri 'none'; form-action 'none'">
+<!-- style-src-elem names each style block by hash, which the tool fills in when it builds the page: the viewer's own, the
+     frames' (#frame-style), and the design's. Each frame is a srcdoc document, which takes this page's policy, so a style
+     block a design gained in any other way does not apply. Style attributes keep 'unsafe-inline' (style-src-attr), because a
+     design's markup holds them and a hash cannot name one. style-src stays 'unsafe-inline' only for a browser that knows
+     neither: with default-src 'none' a style can load nothing. script-src names the viewer's own script by hash, so
+     nothing in a design runs. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<!--
+  {{written_by}}
+
+  The prototype viewer, filled by open-prototype around one design file, with the
+  flows and blocks it includes. A project never keeps this page: the tool writes it to its output folder from the viewer as it stands, so
+  every design gets every fix to the viewer, and the design file is never rewritten.
+
+  The Screens panel, on the left, holds your review: the round, how many views you have seen, and every screen
+  with its states. The middle is the design, in the frame you pick. The right column holds the comments and the build details, and
+  ends at the file to download. The page records no decision: a person tells their agent when the design is done.
+-->
+<style id="viewer">
+{{system}}
+{{chrome}}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" class="pv-sprite" aria-hidden="true" focusable="false">
+  <symbol id="pv-web" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M1.5 5.5h13"/></symbol>
+  <symbol id="pv-phone" viewBox="0 0 16 16"><rect x="4.5" y="1.5" width="7" height="13" rx="1.5"/><path d="M7 12.5h2"/></symbol>
+  <symbol id="pv-desktop" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="9" rx="1"/><path d="M6 14h4M8 11.5V14"/></symbol>
+  <symbol id="pv-auto" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11a5.5 5.5 0 0 0 0-11z" fill="currentColor"/></symbol>
+  <symbol id="pv-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></symbol>
+  <symbol id="pv-moon" viewBox="0 0 16 16"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5z"/></symbol>
+  <symbol id="pv-chev" viewBox="0 0 16 16"><path d="M4.5 6.5L8 10l3.5-3.5"/></symbol>
+  <symbol id="pv-left" viewBox="0 0 16 16"><path d="M10 3.5L5.5 8 10 12.5"/></symbol>
+  <symbol id="pv-right" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5"/></symbol>
+  <symbol id="pv-seen" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="currentColor" stroke="none"/><path class="pv-seen-mark" d="M5 8.2l2 2 4-4.2"/></symbol>
+  <symbol id="pv-unseen" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.75" stroke-dasharray="2.2 2"/></symbol>
+  <symbol id="pv-here" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="pv-expand" viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></symbol>
+  <symbol id="pv-compare" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="6" height="11" rx="1"/><rect x="8.5" y="2.5" width="6" height="11" rx="1"/></symbol>
+  <symbol id="pv-link" viewBox="0 0 16 16"><path d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.8 2.8 0 0 1 4 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 0 1-4-4L5 7.5"/></symbol>
+  <symbol id="pv-keys" viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8.5" rx="1.5"/><path d="M4 6.8h.01M6.5 6.8h.01M9 6.8h.01M11.5 6.8h.01M5 9.8h6"/></symbol>
+  <symbol id="pv-download" viewBox="0 0 16 16"><path d="M8 2v8M4.5 7 8 10.5 11.5 7M2.5 13.5h11"/></symbol>
+  <symbol id="pv-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></symbol>
+  <symbol id="pv-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
+  <symbol id="pv-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="pv-panel-left" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M6 2.5v11"/></symbol>
+  <symbol id="pv-panel-right" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10 2.5v11"/></symbol>
+  <symbol id="pv-comment" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7h-6l-3 3v-3h-2z"/></symbol>
+  <symbol id="pv-alert" viewBox="0 0 16 16"><path d="M8 2 1.5 13.5h13zM8 6.5v3.5M8 12h.01"/></symbol>
+  <symbol id="pv-layers" viewBox="0 0 16 16"><path d="M8 2 1.5 5.5 8 9l6.5-3.5zM1.5 8.5 8 12l6.5-3.5M1.5 11 8 14.5l6.5-3.5"/></symbol>
+</svg>
+<a class="skip" href="#artboard" data-testid="proto-skip-link">Skip to the prototype</a>
+<div class="pv-app" id="workspace" data-menu="sidebar" data-tab="prototype">
+  <header class="topbar pv-top">
+    <button type="button" class="btn btn-quiet btn-icon pv-menu-toggle" aria-controls="screen-menu" aria-expanded="false" title="Screens ([)" data-testid="proto-screens-toggle"><span class="pv-dock-l1"><svg class="icon" aria-hidden="true"><use href="#pv-panel-left"/></svg><b class="pv-dock-v" id="dock-seen" aria-hidden="true"></b></span><span class="pv-dock-l2" aria-hidden="true">Screens</span><span class="sr-only">Screens</span></button>
+    <div class="pv-id">
+      <h1 class="pv-product" id="product-name"></h1>
+      <div class="pv-sub" id="subtitle">{{subtitle}}</div>
+      <div class="pv-sub pv-sub-short" id="subtitle-short"></div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Prototype, Board, or System" aria-keyshortcuts="v"></div>
+    <div class="topbar-end pv-end">
+      <button type="button" class="btn btn-quiet" id="present" aria-pressed="false" title="Full screen (F)" data-testid="proto-full-screen"><svg class="icon" aria-hidden="true"><use href="#pv-expand"/></svg><span class="pv-tab-label">Full screen</span></button>
+      <button type="button" class="btn btn-quiet btn-icon" id="copy-link" aria-label="Copy a link to this view" title="Copy a link to this view" data-testid="proto-copy-link"><svg class="icon" aria-hidden="true"><use href="#pv-link"/></svg></button>
+      <button type="button" class="btn btn-quiet btn-icon" id="shortcuts-open" aria-haspopup="dialog" aria-label="Keyboard shortcuts (?)" title="Keyboard shortcuts (?)" data-testid="proto-shortcuts"><svg class="icon" aria-hidden="true"><use href="#pv-keys"/></svg></button>
+      <button type="button" class="btn btn-quiet btn-icon pv-inspect-toggle" id="inspect-toggle" aria-controls="inspector" aria-expanded="false" title="Comments and build details (])" data-testid="proto-inspector-toggle"><span class="pv-dock-l1"><svg class="icon" aria-hidden="true"><use href="#pv-panel-right"/></svg><span class="badge badge-comment pv-count pv-dock-v" id="dock-comments" aria-hidden="true">0</span></span><span class="pv-dock-l2" aria-hidden="true">Comments</span><span class="sr-only">Comments and build details</span></button>
+      <button type="button" class="btn btn-quiet btn-icon pv-build-toggle" id="build-toggle" aria-controls="inspector" aria-expanded="false" title="Build details" data-testid="proto-build-toggle"><span class="pv-dock-l1"><svg class="icon" aria-hidden="true"><use href="#pv-layers"/></svg><b class="pv-dock-v" aria-hidden="true">Build</b></span><span class="pv-dock-l2" aria-hidden="true">Details</span><span class="sr-only">Build details</span></button>
+    </div>
+  </header>
+  <div class="pv-work">
+    <nav class="pv-pane pv-nav" id="screen-menu" aria-label="Screens">
+      <section class="pv-round" data-testid="proto-round">
+        <div class="pv-round-top">
+          <h2 class="pv-of" id="round-h">Screens</h2>
+          <button type="button" class="btn btn-quiet btn-icon pv-icon-btn pv-menu-close" aria-label="Close the Screens panel" data-testid="proto-screens-close"><svg class="icon" aria-hidden="true"><use href="#pv-close"/></svg></button>
+        </div>
+        <div class="pv-round-h"><label for="round-number">Round</label><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="1" class="field" id="round-number" title="The round you review: type another number and press Enter to open it" data-testid="proto-round-number"></div>
+        <p class="pv-seenline"><b id="seen-count"></b> views seen</p>
+        <p class="pv-hint" id="seen-stale" role="status" hidden data-testid="proto-seen-stale">The design changed since you looked, so its views count as not seen again.</p>
+        <div class="meter" id="seen-meter" role="meter" aria-label="Views seen" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><span></span></div>
+        <ul class="pv-wheres" id="seen-where" aria-label="Views seen on each platform and theme" data-testid="proto-seen-where"></ul>
+        <p class="pv-open" id="open-now"><i aria-hidden="true"></i><span id="comments-line"></span></p>
+        <p class="pv-open" id="open-earlier" hidden><i class="pv-ring" aria-hidden="true"></i><span id="earlier-line"></span></p>
+        <button type="button" class="btn btn-block" id="next-unseen" aria-keyshortcuts="n" data-testid="proto-next-unseen"><span id="next-label">Next view not seen</span><kbd aria-hidden="true">N</kbd></button>
+      </section>
+      <div class="pv-find"><input type="search" class="field" id="screen-filter" placeholder="Find a screen or state" aria-label="Find a screen or state" data-testid="proto-filter"></div>
+      <ol class="pv-list" id="screen-list"></ol>
+    </nav>
+    <main class="pv-center" id="artboard">
+      <div class="pv-bar" role="group" aria-label="Display">
+        <span class="pv-where" id="where-prototype">
+          <button type="button" class="btn btn-quiet btn-icon" id="state-prev" aria-label="Previous state (K)" aria-keyshortcuts="k" title="Previous state (K)" data-testid="proto-prev-state"><svg class="icon" aria-hidden="true"><use href="#pv-left"/></svg></button>
+          <span class="pv-crumb" id="crumb"></span>
+          <button type="button" class="btn btn-quiet btn-icon" id="state-next" aria-label="Next state (J)" aria-keyshortcuts="j" title="Next state (J)" data-testid="proto-next-state"><svg class="icon" aria-hidden="true"><use href="#pv-right"/></svg></button>
+        </span>
+        <span class="pv-where" id="where-board" hidden><span>Every screen and state</span><span class="pv-dot" aria-hidden="true">·</span><span class="pv-dim" id="board-seen"></span></span>
+        <span class="pv-where" id="where-system" hidden><span>The design system</span></span>
+        <div class="seg" id="board-show" role="group" aria-label="Show" hidden>
+          <button type="button" data-boardshow="all" aria-pressed="true" data-testid="proto-board-all">All</button>
+          <button type="button" data-boardshow="unseen" aria-pressed="false" data-testid="proto-board-unseen">Not seen</button>
+          <button type="button" data-boardshow="commented" aria-pressed="false" data-testid="proto-board-commented">With comments</button>
+        </div>
+        <label class="select pv-board-flow" id="board-flow-wrap" hidden>
+          <span class="sr-only">Flow</span>
+          <select id="board-flow" data-testid="proto-board-flow"></select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#pv-chev"/></svg>
+        </label>
+        <div class="seg pv-frameset" role="group" aria-label="Frame and product theme">
+        <label class="select pv-pick" data-pv-platform="web">
+          <svg class="icon select-icon pv-on-web" aria-hidden="true"><use href="#pv-web"/></svg>
+          <svg class="icon select-icon pv-on-phone" aria-hidden="true"><use href="#pv-phone"/></svg>
+          <svg class="icon select-icon pv-on-desktop" aria-hidden="true"><use href="#pv-desktop"/></svg>
+          <span class="sr-only">Frame</span>
+          <select id="frame-pick" aria-keyshortcuts="d" data-testid="proto-frame"></select>
+          <svg class="icon select-chevron" aria-hidden="true"><use href="#pv-chev"/></svg>
+        </label>
+        <div class="seg" role="group" aria-label="Product theme" aria-keyshortcuts="t" id="theme-group">
+          <button type="button" data-theme-pick="system" aria-label="Auto, as the system" title="Product theme: auto, as the system" data-testid="proto-theme-system"><svg class="icon" aria-hidden="true"><use href="#pv-auto"/></svg></button>
+          <button type="button" data-theme-pick="light" aria-label="Light" title="Product theme: light" data-testid="proto-theme-light"><svg class="icon" aria-hidden="true"><use href="#pv-sun"/></svg></button>
+          <button type="button" data-theme-pick="dark" aria-label="Dark" title="Product theme: dark" data-testid="proto-theme-dark"><svg class="icon" aria-hidden="true"><use href="#pv-moon"/></svg></button>
+        </div>
+        </div>
+        <div class="seg" role="group" aria-label="Zoom" id="zoom-group">
+          <button type="button" data-zoom="fit" data-testid="proto-zoom-fit">Fit</button>
+          <button type="button" data-zoom="actual" data-testid="proto-zoom-actual">100%</button>
+        </div>
+        <button type="button" class="btn btn-comment pv-bar-comment" id="bar-comment" aria-pressed="false" aria-label="Add a comment" aria-keyshortcuts="c" title="Add a comment (C)" data-testid="proto-bar-comment"><svg class="icon" aria-hidden="true"><use href="#pv-plus"/></svg>Comment</button>
+        <div class="pv-more" id="checks">
+          <button type="button" class="btn pv-more-btn" id="checks-toggle" aria-expanded="false" aria-controls="checks-menu" data-testid="proto-checks">Checks <span class="badge" id="checks-count" hidden></span><span class="sr-only" id="checks-on" hidden> on</span><svg class="icon pv-chevron" aria-hidden="true"><use href="#pv-chev"/></svg></button>
+          <div class="pv-pop" id="checks-menu" role="group" aria-label="Checks" hidden>
+            <button type="button" data-check="text" aria-pressed="false" aria-describedby="check-text-hint" data-testid="proto-check-text"><span>Text at 200%<small id="check-text-hint">Twice the size, as WCAG 1.4.4 asks</small></span><span class="switch-state pv-onoff" aria-hidden="true">Off</span></button>
+            <button type="button" data-check="dir" aria-pressed="false" aria-describedby="check-dir-hint" data-testid="proto-check-rtl"><span>Right to left<small id="check-dir-hint">Mirrors the layout, as for Arabic or Hebrew</small></span><span class="switch-state pv-onoff" aria-hidden="true">Off</span></button>
+            <button type="button" data-check="safe" aria-pressed="false" aria-describedby="check-safe-hint" data-testid="proto-check-safe-areas"><span>Safe areas<small id="check-safe-hint">Shades a phone's system bars</small></span><span class="switch-state pv-onoff" aria-hidden="true">Off</span></button>
+            <button type="button" id="every-state" data-board-option hidden aria-pressed="true" aria-describedby="every-state-hint" data-testid="proto-board-every-state"><span>Every state<small id="every-state-hint">One column for each state, or only each screen's first</small></span><span class="switch-state pv-onoff" aria-hidden="true">On</span></button>
+            <button type="button" id="flow-lines" data-board-option hidden aria-pressed="false" aria-describedby="flow-lines-hint" data-testid="proto-board-flow-lines"><span>Links between screens<small id="flow-lines-hint">An arrow wherever one screen opens another</small></span><span class="switch-state pv-onoff" aria-hidden="true">Off</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="pv-banners">
+        <details class="callout callout-notice pv-banner" id="design-problems" hidden data-testid="proto-design-problems"><summary id="design-problems-h"></summary><ul id="design-problems-list"></ul></details>
+        <p class="callout callout-notice pv-banner" id="link-problem" role="status" hidden data-testid="proto-link-problem"></p>
+      </div>
+      <div class="pv-scroller" id="scroller" tabindex="0" role="region" aria-label="Artboard">
+      </div>
+    </main>
+    <aside class="pv-pane pv-inspector" id="inspector" aria-label="Comments and build details" data-open="false">
+      <div class="pv-iparts">
+        <div class="tabs pv-itabs" role="tablist" aria-label="Side panel">
+          <button type="button" role="tab" id="itab-comments" data-itab="comments" aria-controls="comments" aria-selected="true" data-testid="proto-inspect-comments">Comments <span class="badge badge-comment pv-count" id="comments-count">0</span></button>
+          <button type="button" role="tab" id="itab-screen" data-itab="screen" aria-controls="inspect-screen" aria-selected="false" tabindex="-1" data-testid="proto-inspect-build">Build details</button>
+        </div>
+        <div class="pv-ibody">
+          <div role="tabpanel" class="pv-comments-panel" id="comments" aria-labelledby="itab-comments">
+            <div class="pv-compose">
+              <p class="pv-hint" id="compose-hint">Press Add a comment, then click an element in the screen.</p>
+              <button type="button" class="btn btn-comment" aria-pressed="false" aria-keyshortcuts="c" data-comment-toggle data-testid="proto-comments-toggle"><svg class="icon" aria-hidden="true"><use href="#pv-plus"/></svg>Add a comment <kbd aria-hidden="true">C</kbd></button>
+            </div>
+            <p class="pv-hint" id="comments-stale" role="status" hidden data-testid="proto-comments-stale">Some comments were made on an earlier version of this design.</p>
+            <p class="pv-hint" id="comments-unreadable" role="status" hidden data-testid="proto-comments-unreadable"></p>
+            <div class="pv-form" id="comment-form" hidden>
+              <label>Element <span class="select"><select id="comment-target" data-testid="proto-comments-target"></select><svg class="icon select-chevron" aria-hidden="true"><use href="#pv-chev"/></svg></span></label>
+              <div class="pv-type"><span id="comment-type-label">Type</span><div class="seg" role="group" aria-labelledby="comment-type-label">
+                <button type="button" data-type="change" aria-pressed="true" data-testid="proto-comments-type-change">Change</button>
+                <button type="button" data-type="remove" aria-pressed="false" data-testid="proto-comments-type-remove">Remove</button>
+                <button type="button" data-type="add" aria-pressed="false" data-testid="proto-comments-type-add">Add</button>
+                <button type="button" data-type="question" aria-pressed="false" data-testid="proto-comments-type-question">Question</button>
+              </div></div>
+              <label>Comment <textarea class="field" id="comment-text" rows="3" aria-describedby="comment-error comment-limit comment-count" data-testid="proto-comments-text"></textarea></label>
+              <p class="pv-hint" id="comment-count" data-testid="proto-comments-count"></p>
+              <p class="field-error" id="comment-limit" hidden data-testid="proto-comments-limit"></p>
+              <p class="field-error" id="comment-error" hidden data-testid="proto-comments-error"><svg class="icon" aria-hidden="true"><use href="#pv-alert"/></svg><span></span></p>
+              <div class="pv-actions"><button type="button" class="btn" id="comment-add" data-testid="proto-comments-save">Save comment</button><button type="button" class="btn" id="comment-cancel" hidden data-testid="proto-comments-cancel">Cancel edit</button></div>
+            </div>
+            <ol class="pv-comments" id="comments-list" aria-label="Comments this round"></ol>
+            <p class="pv-empty" id="comments-empty" hidden data-testid="proto-comments-empty"></p>
+            <section class="pv-earlier" id="earlier-rounds" aria-label="Earlier rounds" hidden><div id="earlier-rounds-list"></div></section>
+          </div>
+          <div role="tabpanel" class="pv-build" id="inspect-screen" aria-labelledby="itab-screen" hidden>
+            <p class="pv-hint" id="build-where" data-testid="proto-build-where"></p>
+            <div>
+              <h2 id="inspect-title"></h2>
+              <div class="pv-row-id"><code id="inspect-id"></code></div>
+              <dl class="facts" id="inspect-facts"></dl>
+            </div>
+            <div>
+              <h3>Components on this state</h3>
+              <div class="pv-rows" id="inspect-components" role="toolbar" aria-label="Components on this state"></div>
+            </div>
+            <div>
+              <h3>Goes to</h3>
+              <div class="pv-rows" id="inspect-links" role="toolbar" aria-label="Goes to"></div>
+            </div>
+            <div>
+              <div class="pv-build-h"><h3>Test ids</h3><button type="button" class="btn" id="copy-testids" data-testid="proto-copy-testids"><svg class="icon" aria-hidden="true"><use href="#pv-copy"/></svg>Copy the list</button></div>
+              <div class="pv-rows pv-ids" id="inspect-elements" role="toolbar" aria-orientation="vertical" aria-label="Test ids"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pv-finish">
+          <div class="pv-closing" id="closing" data-testid="proto-closing">
+            <p class="pv-closing-h" id="closing-h"></p>
+            <p class="pv-closing-p" id="next-line"></p>
+            <button type="button" class="btn btn-primary btn-block" id="closing-next" aria-keyshortcuts="n" hidden data-testid="proto-closing-next">Next view not seen <kbd aria-hidden="true">N</kbd></button>
+            <button type="button" class="btn btn-primary btn-block" id="comments-send" data-comment-copy="prompt" hidden data-testid="proto-comments-send"><svg class="icon" aria-hidden="true"><use href="#pv-copy"/></svg><span id="send-label">Copy the comments for your agent</span></button>
+          </div>
+          <div class="pv-alt">
+            <a class="link link-quiet pv-link" id="comments-download" download="comments.json" hidden data-testid="proto-comments-download">Download comments.json</a><button type="button" class="link link-quiet pv-link" id="comments-download-off" disabled data-testid="proto-comments-download-off">Download comments.json</button>
+            <button type="button" class="link link-quiet pv-link" data-comment-copy="json" data-testid="proto-comments-copy-json">Copy the JSON</button>
+          </div>
+          <label id="comments-out-label" hidden>The clipboard is blocked: select this text and copy it <textarea class="field" id="comments-out" rows="4" readonly data-testid="proto-comments-out"></textarea></label>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <section class="pv-dock" aria-label="Panels"></section>
+</div>
+<button type="button" class="btn btn-primary pv-exit" id="present-exit" data-testid="proto-full-screen-exit">Exit full screen (Esc)</button>
+<dialog class="dialog" id="shortcuts" aria-labelledby="shortcuts-h" data-testid="proto-shortcuts-sheet">
+  <div class="dialog-head"><h2 id="shortcuts-h">Keyboard shortcuts</h2><button type="button" class="btn btn-quiet btn-icon pv-icon-btn" id="shortcuts-close" aria-label="Close the shortcuts" data-testid="proto-shortcuts-close"><svg class="icon" aria-hidden="true"><use href="#pv-close"/></svg></button></div>
+  <dl class="pv-keys">
+    <div><dt>Show a state of this screen, by its number in the list</dt><dd><kbd>1</kbd> to <kbd>9</kbd></dd></div>
+    <div><dt>Next or previous state, on into the next screen</dt><dd><kbd>J</kbd><kbd>K</kbd></dd></div>
+    <div><dt>Next view not seen: a state on a platform and in a theme you have not seen</dt><dd><kbd>N</kbd></dd></div>
+    <div><dt>Next tab: Prototype, Board, or System</dt><dd><kbd>V</kbd></dd></div>
+    <div><dt>Next product theme</dt><dd><kbd>T</kbd></dd></div>
+    <div><dt>Next frame, the device or the width</dt><dd><kbd>D</kbd></dd></div>
+    <div><dt>Turn Add a comment on or off</dt><dd><kbd>C</kbd></dd></div>
+    <div><dt>Full screen</dt><dd><kbd>F</kbd></dd></div>
+    <div><dt>Hide or show the Screens panel</dt><dd><kbd>[</kbd></dd></div>
+    <div><dt>Hide or show the comments</dt><dd><kbd>]</kbd></dd></div>
+    <div><dt>This list</dt><dd><kbd>?</kbd></dd></div>
+    <div><dt>Close the Checks menu, a panel, full screen, or this list; leave the comment form</dt><dd><kbd>Esc</kbd></dd></div>
+  </dl>
+  <div class="pv-keys-switch">
+    <button type="button" role="switch" aria-checked="true" id="keys-switch" aria-describedby="keys-switch-hint" data-testid="proto-shortcuts-switch"><span>Single-key shortcuts<small id="keys-switch-hint">When off, no key acts alone: use the buttons. Esc still closes.</small></span><span class="switch-state pv-onoff" aria-hidden="true">On</span></button>
+  </div>
+</dialog>
+<p class="sr-only" role="status" id="announce" data-testid="proto-announce"></p>
+<p class="toast pv-toast" id="toast" aria-hidden="true" data-testid="proto-toast"></p>
+<!-- What the viewer adds to each frame: the comment cursor and the inspector's highlight, with no colour of their own, and a phone's scrollbar. The build writes them from viewer/names.ts. -->
+<template id="frame-style"><style>
+{{frame}}
+</style></template>
+<template id="product">
+</template>
+<script type="application/json" id="fixtures">
+{}
+</script>
+<script>
+{{script}}
+</script>
+</body>
+</html>

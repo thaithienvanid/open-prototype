@@ -1,0 +1,6 @@
+:root {
+  --color-primary: #1d4ed8;
+}
+:root[data-proto-theme="dark"] {
+  --color-primary: #93c5fd;
+}
